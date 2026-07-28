@@ -1,157 +1,73 @@
-# ClauseGuard 🛡️
-### AI-Powered Contract Governance Layer for Financial Agents
+# ClauseGuard
 
-ClauseGuard is a checkpoint between "agent decides to act" and "agent commits to a contract." It reads a real, messy contract, flags risky clauses using TF-IDF similarity, explains each risk in plain English via Groq LLM, and drafts a negotiation email you could actually send.
+> **A Governance Layer for Autonomous Financial Agents**
+
+Autonomous financial agents are beginning to sign up for cards, negotiate loan terms, and accept service contracts on behalf of users—often faster than any human can review the terms. **ClauseGuard** is the essential checkpoint between "agent decides to act" and "agent commits to a contract."
+
+ClauseGuard reads contracts, flags clauses that carry real risk, and drafts counter-terms needed to fix them, ensuring AI autonomy is bounded by safe, reviewable guardrails.
 
 ---
 
-## Setup (< 5 minutes)
+## 🏗️ Architecture
 
-### 1. Prerequisites
-- Node.js 18+ ([download](https://nodejs.org))
-- A Groq API key ([get one free](https://console.groq.com/keys))
+ClauseGuard is built on a **Hybrid Architecture** combining deterministic symbolic checks with LLM reasoning, ensuring zero-width character evasion, semantic rephrasings, and prompt-injection attacks fail.
 
-### 2. Install
+1. **Ingestion Layer:** Parses PDF, DOCX, and plain text using `pdf-parse` and `mammoth`, splitting documents via a multi-pass heuristic regex.
+2. **Sanitization:** Strips zero-width unicode characters and flags suspicious prompt-injection language (e.g., "SYSTEM OVERRIDE").
+3. **Deterministic Heuristics:**
+   - **Signature Detection:** Rapidly scans for missing signature blocks or unsigned fields via regex.
+   - **Key Dates Extraction:** Identifies renewal deadlines, cure periods, and notice requirements instantly.
+4. **TF-IDF Pre-filter:** Filters clauses using cosine similarity against a library of 35 known risk patterns (financial, employment, rental, B2B).
+5. **LLM Reasoning (Llama 3.1):** Flagged clauses are sent to Groq for deep semantic reasoning, generating risk explanations and suggested counter-terms.
+6. **Consistency Checker:** A cross-check module that flags a `SuspiciousDisagreement` if the LLM marks a known risky clause as "safe," catching AI hallucinations and prompt injections.
+
+---
+
+## 📊 Adversarial Robustness Experiment
+
+We ran a benchmark comparing a pure **LLM-Only Pipeline** against our **Hybrid Pipeline** using 15 adversarial contracts (crafted with prompt injection and unicode obfuscation) and 10 benign boilerplate contracts.
+
+**Key Findings:**
+- **The "Paranoid Lawyer" Problem:** The LLM-only pipeline hallucinates risk on standard boilerplate, yielding an unacceptable **70% False Positive Rate (FPR)**. The Hybrid pipeline reduces this to 30%.
+- **Attack Success Rate (ASR):** 86.7% of adversarial attacks successfully fooled the LLM in isolation. However, in the Hybrid pipeline, the Consistency Checker and Sanitizer intercepted all but **13.3%** of these attacks.
+- **Cost & Speed:** The Hybrid pipeline reduced total LLM inference calls by 31%, dropping latency and API costs proportionally while maintaining a 93.3% accuracy/recall rate.
+
+👉 **[Read the full experiment methodology and results in RESULTS.md](scripts/baseline-comparison/RESULTS.md)**
+
+---
+
+## 🚀 Running Locally
+
+### Prerequisites
+- Node.js (v18+)
+- A Groq API key (for Llama-3.1-8b-instant inference)
+
+### Setup
+
+1. **Clone the repository and install dependencies:**
+   ```bash
+   git clone https://github.com/your-username/ClauseGuard.git
+   cd ClauseGuard
+   npm install
+   ```
+
+2. **Configure Environment Variables:**
+   Rename `.env.example` to `.env` and add your Groq API key:
+   ```env
+   GROQ_API_KEY=your_groq_api_key_here
+   PORT=3000
+   ```
+
+3. **Start the Server:**
+   ```bash
+   npm start
+   ```
+
+4. **Access the Application:**
+   Open `http://localhost:3000` in your browser. Drag and drop a contract, and review the flagged clauses!
+
+### Running the Benchmark
+To reproduce the adversarial robustness experiments:
 ```bash
-cd ClauseGuard
-npm install
+node scripts/baseline-comparison/run-experiments.js
 ```
-
-### 3. Configure
-```bash
-# Copy the example and add your key
-copy .env.example .env
-```
-
-Edit `.env`:
-```
-GROQ_API_KEY=gsk_your_key_here
-PORT=3000
-```
-
-### 4. Start
-```bash
-npm start
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
----
-
-## How to Use
-
-1. **Upload** a PDF, DOCX, or TXT contract — or paste the text directly
-2. **Analyze** — ClauseGuard splits the contract into clauses and runs TF-IDF risk detection
-3. **Review** — Each flagged clause shows:
-   - Risk level (Critical / High / Medium / Low)
-   - Plain-language explanation of the risk
-   - AI-drafted replacement clause you can edit
-4. **Accept** revisions you want to include in the negotiation
-5. **Export** — Get a ready-to-send negotiation email
-
----
-
-## Extending the Clause Library
-
-The pattern library lives in `src/patterns/`. Each JSON file is a contract type.
-
-**To add a new contract type** (e.g., SaaS):
-
-1. Create `src/patterns/saas.json`
-2. Follow this schema:
-
-```json
-{
-  "contractType": "saas",
-  "description": "Patterns for SaaS subscription agreements",
-  "patterns": [
-    {
-      "id": "saas_001",
-      "category": "Price Increase",
-      "riskLevel": "medium",
-      "keywords": ["price increase", "fee adjustment", "rate change", "annual increase"],
-      "description": "Vendor can increase price annually without consent.",
-      "exampleClause": "Vendor may increase subscription fees annually by up to 15% with 30 days notice."
-    }
-  ]
-}
-```
-
-**Risk levels**: `low` | `medium` | `high` | `critical`
-
-No code changes needed — the pattern loader auto-discovers all JSON files in `src/patterns/`.
-
----
-
-## Architecture
-
-```
-ClauseGuard/
-├── src/
-│   ├── server.js              # Express app (port 3000)
-│   ├── routes/
-│   │   ├── analyze.js         # POST /api/analyze
-│   │   └── export.js          # POST /api/export
-│   ├── services/
-│   │   ├── ingestion.js       # PDF/DOCX/TXT parsing + clause splitting
-│   │   ├── riskDetector.js    # TF-IDF cosine similarity engine
-│   │   └── llmReasoner.js     # Groq API with p-limit concurrency
-│   ├── patterns/
-│   │   ├── index.js           # Auto-discovering pattern loader
-│   │   ├── financial.json     # 10 patterns: credit/loan/payment
-│   │   ├── employment.json    # 8 patterns: non-compete/IP/termination
-│   │   ├── rental.json        # 7 patterns: deposits/liability/entry
-│   │   └── b2b.json           # 10 patterns: indemnification/IP/SLA
-│   └── utils/errors.js        # Typed errors for graceful degradation
-└── public/
-    ├── index.html             # Single-page app
-    ├── styles.css             # Dark glassmorphism design
-    └── app.js                 # Frontend logic
-```
-
-### Pipeline
-```
-Upload/Paste → Parse (pdf-parse / mammoth) → Split Clauses →
-TF-IDF Risk Detection (natural) → [Flagged only] Groq LLM Reasoning →
-Review UI → Accept/Edit → Export Negotiation Email
-```
-
-### Concurrency
-Groq calls are limited to **5 concurrent requests** via `p-limit` to avoid rate limiting on large contracts. Each failed LLM call degrades gracefully — the clause still shows with the TF-IDF detection result.
-
-### Processing Cap
-Handles up to **60 clauses per document**. Additional clauses are truncated with a warning.
-
----
-
-## Supported File Types
-| Format | Library |
-|--------|---------|
-| PDF | `pdf-parse` |
-| DOCX | `mammoth` |
-| TXT | Native Node.js |
-| Pasted text | Direct input |
-
----
-
-## Error States
-| Scenario | Behavior |
-|----------|----------|
-| Empty file | Clear error: "document appears empty" |
-| Unsupported format | Clear error: "upload PDF, DOCX, or TXT" |
-| Groq API failure | Risk flags shown; AI explanations marked unavailable per-clause |
-| Rate limit (429) | 3-attempt exponential backoff before graceful failure |
-| Malformed JSON from LLM | Extraction fallback + graceful per-clause failure |
-
----
-
-## Development
-
-```bash
-# Dev mode with auto-restart (Node 18+)
-npm run dev
-```
-
----
-
-*Built with: Express · natural (TF-IDF) · groq-sdk · pdf-parse · mammoth · p-limit*
