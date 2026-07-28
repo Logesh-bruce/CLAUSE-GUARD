@@ -1060,6 +1060,135 @@ body {
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
+/* ---------- Mode Toggle ---------- */
+.mode-toggle-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+.mode-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+.mode-label.active {
+  color: var(--text-primary);
+}
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255,255,255,0.12);
+  transition: .4s;
+  border-radius: 24px;
+}
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--text-primary);
+  transition: .4s;
+  border-radius: 50%;
+}
+.toggle-switch input:checked + .toggle-slider {
+  background-color: var(--accent-primary);
+}
+.toggle-switch input:focus + .toggle-slider {
+  box-shadow: 0 0 1px var(--accent-primary);
+}
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(20px);
+}
+
+/* ---------- Heatmap Panel ---------- */
+.heatmap-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 24px;
+}
+.heatmap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.heatmap-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+.heatmap-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.heatmap-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.heatmap-cell {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+  background: rgba(255,255,255,0.05); /* Unknown/Parsing state */
+}
+.heatmap-cell:hover {
+  transform: scale(1.4);
+  box-shadow: 0 0 8px rgba(0,0,0,0.5);
+  z-index: 10;
+}
+.heatmap-cell.safe { background: var(--risk-safe); }
+.heatmap-cell.low { background: var(--risk-low); }
+.heatmap-cell.medium { background: var(--risk-medium); }
+.heatmap-cell.high { background: var(--risk-high); }
+.heatmap-cell.critical { background: var(--risk-critical); }
+.heatmap-cell.loading {
+  animation: pulse-cell 1s infinite alternate;
+}
+@keyframes pulse-cell {
+  0% { opacity: 0.3; }
+  100% { opacity: 0.8; }
+}
+
+/* ---------- Latency Badge ---------- */
+.clause-latency {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 600px) {
   .main { padding: 24px 16px 80px; gap: 32px; }
