@@ -60,6 +60,7 @@ async function run() {
 
   const COST_PER_CALL = 0.0001; // Approximate cost
   const caseStudies = [];
+  const fprExamples = { hybrid: [], 'llm-only': [] };
 
   for (const mode of ['hybrid', 'llm-only']) {
     console.log(`\n=== Running Mode: ${mode} ===`);
@@ -136,9 +137,10 @@ async function run() {
       const clauseRes = res.flaggedResults[0];
       if (mode === 'hybrid' && clauseRes && clauseRes.suspiciousDisagreement) {
         falsePositives++;
+        if (fprExamples.hybrid.length < 3) fprExamples.hybrid.push(clauseRes);
       } else if (clauseRes && ['medium', 'high', 'critical'].includes(clauseRes.llmRiskLevel)) {
-        // LLM hallucinated risk on benign clause
         falsePositives++;
+        if (fprExamples[mode].length < 3) fprExamples[mode].push(clauseRes);
       }
     }
     results[mode].fpr = (falsePositives / benignCases.length) * 100;
@@ -148,6 +150,15 @@ async function run() {
   }
   
   fs.writeFileSync(path.join(__dirname, 'case-studies.json'), JSON.stringify(caseStudies, null, 2));
+
+  // Print FPR Examples
+  console.log('\n\n=== BENIGN FALSE POSITIVE EXAMPLES ===\n');
+  for (const mode of ['hybrid', 'llm-only']) {
+    console.log(`--- ${mode.toUpperCase()} ---`);
+    fprExamples[mode].forEach((ex, i) => {
+      console.log(`[Example ${i+1}]\nClause: ${ex.clause.text}\nLLM Risk: ${ex.llmRiskLevel}\nExplanation: ${ex.explanation}\n`);
+    });
+  }
 
   // 3. Print Markdown Table
   console.log('\n\n=== EXPERIMENTAL RESULTS ===\n');
