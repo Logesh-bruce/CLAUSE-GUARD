@@ -1,0 +1,62 @@
+{
+  "contractType": "rental",
+  "description": "Patterns for rental and lease agreements: liability, deposits, maintenance, eviction",
+  "patterns": [
+    {
+      "id": "rent_001",
+      "category": "Security Deposit",
+      "riskLevel": "medium",
+      "keywords": ["security deposit", "deposit", "non-refundable", "forfeiture", "deductions", "normal wear and tear", "withhold"],
+      "description": "Security deposit clauses that allow the landlord to deduct for normal wear and tear, withhold deposits without itemization, or declare the deposit non-refundable.",
+      "exampleClause": "The security deposit shall not bear interest and may be applied by Landlord against any damages, cleaning costs, or unpaid rent. The deposit is non-refundable to the extent of any such amounts as determined by Landlord in its sole discretion."
+    },
+    {
+      "id": "rent_002",
+      "category": "Liability Waiver",
+      "riskLevel": "critical",
+      "keywords": ["not liable", "waive liability", "hold harmless", "indemnify", "personal injury", "property damage", "negligence", "landlord not responsible"],
+      "description": "Clauses that attempt to waive the landlord's liability for personal injury or property damage caused by the landlord's own negligence.",
+      "exampleClause": "Tenant agrees that Landlord shall not be liable for any personal injury or property damage suffered by Tenant or Tenant's guests, regardless of the cause, including damage resulting from the negligence of Landlord or Landlord's agents."
+    },
+    {
+      "id": "rent_003",
+      "category": "Entry Without Notice",
+      "riskLevel": "high",
+      "keywords": ["entry", "access", "enter", "inspect", "without notice", "at any time", "landlord right of entry", "show property"],
+      "description": "Entry clauses that allow the landlord to enter the rental unit at any time without adequate notice, violating tenant privacy rights.",
+      "exampleClause": "Landlord reserves the right to enter the premises at any time and without prior notice for purposes of inspection, repairs, showing the property to prospective tenants or buyers, or any other reason deemed necessary."
+    },
+    {
+      "id": "rent_004",
+      "category": "Rent Increase",
+      "riskLevel": "medium",
+      "keywords": ["rent increase", "increase rent", "adjust rent", "annual increase", "CPI", "market rate", "unilateral", "modify rent"],
+      "description": "Rent increase clauses that allow the landlord to increase rent with minimal notice or based on vague criteria like 'market conditions.'",
+      "exampleClause": "Landlord may increase the monthly rent upon 30 days written notice to Tenant. Any rent increase shall be effective on the first day of the month following the notice period."
+    },
+    {
+      "id": "rent_005",
+      "category": "Maintenance and Repairs",
+      "riskLevel": "medium",
+      "keywords": ["repair", "maintenance", "tenant responsible", "at tenant's expense", "upkeep", "condition", "habitability"],
+      "description": "Clauses that shift the landlord's statutory maintenance obligations to the tenant, potentially including major systems like HVAC or plumbing.",
+      "exampleClause": "Tenant agrees to maintain the premises in good condition and shall be responsible at Tenant's expense for all repairs to the interior of the premises, including appliances, fixtures, and mechanical systems."
+    },
+    {
+      "id": "rent_006",
+      "category": "Early Termination",
+      "riskLevel": "medium",
+      "keywords": ["early termination", "break lease", "termination fee", "lease break fee", "acceleration", "remaining rent", "all remaining months"],
+      "description": "Early termination clauses that require payment of all remaining rent rather than limiting damages to the landlord's actual loss with a duty to mitigate.",
+      "exampleClause": "In the event Tenant terminates this lease prior to the end of the term, Tenant shall be liable for all rent due through the end of the lease term, and Landlord shall have no obligation to re-let the premises."
+    },
+    {
+      "id": "rent_007",
+      "category": "Lease Assignment and Subletting",
+      "riskLevel": "low",
+      "keywords": ["assignment", "sublease", "sublet", "transfer", "consent required", "sole discretion", "prohibit"],
+      "description": "Clauses that broadly prohibit subletting or assignment without landlord consent in landlord's sole discretion, even where state law requires reasonableness.",
+      "exampleClause": "Tenant shall not assign this lease or sublet the premises or any portion thereof without the prior written consent of Landlord, which may be withheld in Landlord's sole and absolute discretion."
+    }
+  ]
+}

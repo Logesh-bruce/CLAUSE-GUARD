@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClauseGuard - AI Contract Risk Analysis</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-content">
+      <div class="logo">
+        <span class="logo-icon">&#128737;</span>
+        <span class="logo-text">ClauseGuard</span>
+      </div>
+      <div class="api-key-section">
+        <input type="password" id="apiKeyInput" placeholder="Enter API Key" class="api-key-input">
+        <button id="saveApiKey" class="btn btn-secondary">Save Key</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main container">
+    <!-- Banner for truncation warning -->
+    <div id="truncationBanner" class="banner hidden">
+      <span class="banner-icon">&#9888;</span>
+      This contract was truncated to the first 60 clauses for length.
+    </div>
+
+    <!-- Error banner -->
+    <div id="errorBanner" class="error-banner hidden">
+      <span id="errorMessage"></span>
+      <button class="close-btn" onclick="hideError()">&times;</button>
+    </div>
+
+    <!-- Upload Section -->
+    <section id="uploadSection" class="upload-section">
+      <h1 class="title">Analyze Your Contract</h1>
+      <p class="subtitle">Upload a PDF or TXT file to identify risky clauses and protect yourself before signing.</p>
+
+      <div id="dropZone" class="drop-zone">
+        <div class="drop-zone-content">
+          <div class="upload-icon">&#128196;</div>
+          <p class="drop-text">Drag & drop your contract here</p>
+          <p class="drop-subtext">or</p>
+          <label class="btn btn-primary upload-label">
+            Browse Files
+            <input type="file" id="fileInput" accept=".pdf,.txt" class="hidden">
+          </label>
+          <p class="file-types">PDF or TXT (max 5MB)</p>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="loading-state hidden">
+        <div class="spinner"></div>
+        <p id="loadingText" class="loading-text">Analyzing contract...</p>
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="resultsSection" class="results-section hidden">
+      <div class="results-header">
+        <h2 class="results-title">
+          <span id="fileName" class="file-name"></span>
+        </h2>
+        <div class="summary-chips">
+          <div class="chip chip-high">
+            <span class="chip-count" id="highCount">0</span>
+            <span class="chip-label">High Risk</span>
+          </div>
+          <div class="chip chip-medium">
+            <span class="chip-count" id="mediumCount">0</span>
+            <span class="chip-label">Medium Risk</span>
+          </div>
+          <div class="chip chip-low">
+            <span class="chip-count" id="lowCount">0</span>
+            <span class="chip-label">Low Risk</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="HIGH">High</button>
+        <button class="filter-tab" data-filter="MEDIUM">Medium</button>
+        <button class="filter-tab" data-filter="LOW">Low</button>
+      </div>
+
+      <div id="clausesContainer" class="clauses-container">
+        <!-- Clauses will be rendered here -->
+      </div>
+
+      <!-- Negotiation Email Section -->
+      <div id="negotiationSection" class="negotiation-section">
+        <button id="generateEmailBtn" class="btn btn-primary btn-large">
+          Generate Negotiation Email
+        </button>
+        <div id="emailLoading" class="email-loading hidden">
+          <div class="spinner-small"></div>
+          <span>Drafting email...</span>
+        </div>
+        <div id="emailResult" class="email-result hidden">
+          <h3 class="email-title">Negotiation Email Draft</h3>
+          <pre id="emailContent" class="email-content"></pre>
+          <button id="copyEmailBtn" class="btn btn-secondary">
+            Copy to Clipboard
+          </button>
+        </div>
+      </div>
+
+      <!-- New Analysis Button -->
+      <div class="new-analysis">
+        <button id="newAnalysisBtn" class="btn btn-outline">
+          Analyze Another Contract
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>ClauseGuard provides risk awareness, not legal advice. Consult a qualified attorney for legal matters.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

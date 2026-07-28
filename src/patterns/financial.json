@@ -1,0 +1,86 @@
+{
+  "contractType": "financial",
+  "description": "Patterns for financial contracts: credit cards, loans, payment agreements, bank accounts",
+  "patterns": [
+    {
+      "id": "fin_001",
+      "category": "Interest Rate",
+      "riskLevel": "high",
+      "keywords": ["interest rate", "variable rate", "APR", "annual percentage rate", "rate adjustment", "prime rate", "index rate", "margin", "floating rate"],
+      "description": "Variable interest rate clauses that allow lender to change rates without notice or with minimal notice, exposing borrower to unlimited rate increases.",
+      "exampleClause": "The interest rate on this account is variable and may be changed at any time at our sole discretion based on market conditions including the prime rate plus a margin determined by the lender."
+    },
+    {
+      "id": "fin_002",
+      "category": "Default and Acceleration",
+      "riskLevel": "critical",
+      "keywords": ["default", "acceleration", "entire balance", "immediately due", "full amount due", "cross-default", "event of default", "demand payment"],
+      "description": "Acceleration clauses that make the entire loan balance immediately due upon any default — including minor technical defaults like a missed payment or covenant breach.",
+      "exampleClause": "Upon any event of default, including failure to make any payment when due, the entire outstanding balance shall become immediately due and payable at the option of the lender without notice or demand."
+    },
+    {
+      "id": "fin_003",
+      "category": "Arbitration and Dispute",
+      "riskLevel": "high",
+      "keywords": ["arbitration", "binding arbitration", "class action waiver", "class action", "jury trial waiver", "dispute resolution", "mandatory arbitration"],
+      "description": "Mandatory binding arbitration clauses that waive the right to a jury trial or class action, typically favoring the financial institution.",
+      "exampleClause": "Any dispute arising out of this agreement shall be resolved by binding arbitration. You waive your right to a jury trial and your right to participate in any class action lawsuit or class arbitration."
+    },
+    {
+      "id": "fin_004",
+      "category": "Fee Structure",
+      "riskLevel": "medium",
+      "keywords": ["fee", "penalty", "late fee", "overdraft fee", "annual fee", "maintenance fee", "charges", "penalty interest", "returned payment"],
+      "description": "Excessive or opaque fee structures including compounding penalty fees, fees on fees, or fees that apply even when the account is in good standing.",
+      "exampleClause": "A late payment fee of $39 will be assessed each billing cycle in which a minimum payment is not received by the due date. Additional fees may be assessed on any unpaid fee balance."
+    },
+    {
+      "id": "fin_005",
+      "category": "Automatic Renewal and Continuation",
+      "riskLevel": "medium",
+      "keywords": ["automatic renewal", "auto-renew", "automatically continue", "rollover", "revolving", "continue in force", "unless cancelled"],
+      "description": "Clauses that automatically renew loan terms, credit facilities, or subscription services without explicit re-consent from the borrower.",
+      "exampleClause": "This agreement shall automatically renew for successive one-year terms unless either party provides written notice of cancellation at least 90 days prior to the renewal date."
+    },
+    {
+      "id": "fin_006",
+      "category": "Security Interest and Collateral",
+      "riskLevel": "high",
+      "keywords": ["security interest", "collateral", "lien", "pledge", "UCC", "repossession", "seizure", "all assets", "blanket lien", "cross-collateralization"],
+      "description": "Broad security interest clauses — especially blanket liens or cross-collateralization clauses — that pledge assets far beyond the specific loan purpose.",
+      "exampleClause": "As security for all obligations under this agreement and any other agreements with us, you grant us a security interest in all of your accounts, deposits, and property held by or at the institution."
+    },
+    {
+      "id": "fin_007",
+      "category": "Amendment Rights",
+      "riskLevel": "high",
+      "keywords": ["amend", "modify", "change terms", "unilateral", "sole discretion", "notice of change", "continued use constitutes acceptance"],
+      "description": "Clauses allowing the lender to unilaterally amend any term of the agreement, with continued use of the account constituting acceptance.",
+      "exampleClause": "We reserve the right to amend, modify, or replace any term of this agreement at any time in our sole discretion. Your continued use of the account after any such change constitutes your acceptance of the new terms."
+    },
+    {
+      "id": "fin_008",
+      "category": "Personal Guarantee",
+      "riskLevel": "critical",
+      "keywords": ["personal guarantee", "personally liable", "personal liability", "guarantor", "jointly and severally", "unlimited guarantee", "individual liability"],
+      "description": "Personal guarantee clauses in business loans that expose the individual signer to unlimited personal liability for the full business debt.",
+      "exampleClause": "The undersigned hereby unconditionally and irrevocably guarantees the full and punctual payment of all amounts due under this agreement and shall be jointly and severally liable with the borrower for all obligations."
+    },
+    {
+      "id": "fin_009",
+      "category": "Data Sharing and Privacy",
+      "riskLevel": "medium",
+      "keywords": ["share information", "third party", "affiliates", "data sharing", "credit reporting", "marketing", "opt-out", "personal information"],
+      "description": "Broad data sharing clauses that permit the institution to share personal financial data with affiliates or third parties for marketing purposes.",
+      "exampleClause": "We may share your personal and financial information with our affiliates and third-party partners for marketing purposes. You may opt out of certain sharing by calling our customer service line."
+    },
+    {
+      "id": "fin_010",
+      "category": "Prepayment Penalty",
+      "riskLevel": "medium",
+      "keywords": ["prepayment", "prepayment penalty", "early repayment", "early termination fee", "yield maintenance", "make-whole payment"],
+      "description": "Prepayment penalty clauses that impose fees for paying off a loan early, discouraging borrowers from refinancing to better terms.",
+      "exampleClause": "If you prepay the loan in whole or in part during the first three years of the loan term, you shall pay a prepayment penalty equal to three months of interest on the amount prepaid."
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "contractType": "b2b",
+  "description": "Patterns for B2B contracts: indemnification, limitation of liability, IP ownership, SLAs",
+  "patterns": [
+    {
+      "id": "b2b_001",
+      "category": "Indemnification",
+      "riskLevel": "critical",
+      "keywords": ["indemnify", "indemnification", "hold harmless", "defend", "third party claims", "losses", "damages", "costs", "unlimited indemnification"],
+      "description": "Broad one-sided indemnification clauses requiring one party to cover all losses including those caused by the other party's own negligence.",
+      "exampleClause": "Client shall indemnify, defend, and hold harmless Vendor and its officers, directors, employees, and agents from and against any and all claims, damages, losses, costs, and expenses arising out of or related to this agreement, regardless of the cause."
+    },
+    {
+      "id": "b2b_002",
+      "category": "Limitation of Liability",
+      "riskLevel": "high",
+      "keywords": ["limitation of liability", "limit liability", "cap on damages", "in no event", "consequential damages", "indirect damages", "maximum liability", "aggregate cap"],
+      "description": "Asymmetric liability caps that severely limit the vendor's exposure while imposing unlimited liability on the client.",
+      "exampleClause": "In no event shall Vendor be liable for any indirect, incidental, special, consequential, or punitive damages. Vendor's total aggregate liability under this agreement shall not exceed the fees paid in the prior one month."
+    },
+    {
+      "id": "b2b_003",
+      "category": "IP Ownership",
+      "riskLevel": "critical",
+      "keywords": ["intellectual property", "work product", "deliverables", "ownership", "all rights", "assign", "vendor retains", "license back", "work for hire"],
+      "description": "IP ownership clauses where the vendor retains ownership of all work product and custom deliverables paid for by the client.",
+      "exampleClause": "Vendor retains all right, title, and interest in and to all deliverables, work product, and intellectual property created in connection with this agreement. Client receives only a limited license to use the deliverables."
+    },
+    {
+      "id": "b2b_004",
+      "category": "Automatic Renewal and Lock-in",
+      "riskLevel": "medium",
+      "keywords": ["automatic renewal", "auto-renew", "evergreen", "renewal term", "cancellation notice", "advance notice", "lock-in"],
+      "description": "Auto-renewal clauses with long cancellation notice windows that create de-facto vendor lock-in.",
+      "exampleClause": "This agreement shall automatically renew for successive one-year terms unless either party provides written notice of non-renewal at least 180 days prior to the end of the then-current term."
+    },
+    {
+      "id": "b2b_005",
+      "category": "Unilateral Amendment",
+      "riskLevel": "high",
+      "keywords": ["amend", "modify", "change", "unilateral", "sole discretion", "update terms", "posting notice", "continued use"],
+      "description": "Clauses allowing the vendor to unilaterally amend material terms including pricing with minimal notice.",
+      "exampleClause": "Vendor reserves the right to modify any term of this agreement, including pricing, by providing 30 days written notice. Continued use of the services after such notice shall constitute acceptance of the modified terms."
+    },
+    {
+      "id": "b2b_006",
+      "category": "Data Ownership and Portability",
+      "riskLevel": "high",
+      "keywords": ["data", "customer data", "vendor rights", "use data", "data portability", "export", "aggregated data", "anonymized", "training"],
+      "description": "Data ownership clauses that give vendors broad rights to use, analyze, or monetize client data including for training AI systems.",
+      "exampleClause": "Vendor may use, process, and analyze Client data in aggregated, anonymized form for product improvement, benchmarking, and machine learning purposes. Client data may be used to train Vendor's AI models."
+    },
+    {
+      "id": "b2b_007",
+      "category": "SLA and Service Availability",
+      "riskLevel": "medium",
+      "keywords": ["SLA", "service level", "uptime", "availability", "downtime", "maintenance window", "credits", "sole remedy", "limited remedy"],
+      "description": "SLA clauses where service credits are the sole remedy for downtime, leaving clients without recourse for major outages causing business losses.",
+      "exampleClause": "Service credits shall be Client's sole and exclusive remedy for any failure by Vendor to meet the service level objectives. Maximum service credits shall not exceed 10% of monthly fees regardless of the extent of downtime."
+    },
+    {
+      "id": "b2b_008",
+      "category": "Termination for Convenience",
+      "riskLevel": "medium",
+      "keywords": ["termination", "terminate for convenience", "terminate without cause", "wind-down", "transition period", "termination fee"],
+      "description": "Asymmetric termination rights where the vendor can terminate for convenience but the client faces significant fees or notice requirements.",
+      "exampleClause": "Vendor may terminate this agreement for convenience upon 30 days notice. Client may terminate for convenience upon 180 days notice and payment of an early termination fee equal to the remaining contract value."
+    },
+    {
+      "id": "b2b_009",
+      "category": "Governing Law and Venue",
+      "riskLevel": "low",
+      "keywords": ["governing law", "jurisdiction", "venue", "choice of law", "exclusive jurisdiction", "courts of", "disputes"],
+      "description": "Governing law clauses that require disputes to be resolved in a distant or inconvenient jurisdiction, increasing litigation costs.",
+      "exampleClause": "This agreement shall be governed by the laws of the State of Delaware. Any disputes shall be resolved exclusively in the courts of New Castle County, Delaware, and both parties consent to personal jurisdiction therein."
+    },
+    {
+      "id": "b2b_010",
+      "category": "Audit Rights",
+      "riskLevel": "medium",
+      "keywords": ["audit", "audit rights", "inspection", "access to records", "compliance audit", "usage audit", "at any time"],
+      "description": "Broad audit clauses that allow the vendor to conduct intrusive and disruptive audits of client systems with minimal notice and at client expense.",
+      "exampleClause": "Vendor shall have the right to audit Client's use of the software at any time upon 48 hours notice. Client shall cooperate fully and bear all costs associated with such audit, including any remediation required."
+    }
+  ]
+}

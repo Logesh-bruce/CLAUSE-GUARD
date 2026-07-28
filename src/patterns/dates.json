@@ -1,0 +1,66 @@
+{
+  "contractType": "dates",
+  "description": "Patterns targeting renewal deadlines, notice periods, expiration dates, and time-sensitive obligations. These produce 'Key Dates' entries, not risk flags.",
+  "patterns": [
+    {
+      "id": "date_001",
+      "category": "Auto-Renewal",
+      "riskLevel": "medium",
+      "isDatePattern": true,
+      "dateType": "auto-renewal",
+      "keywords": ["automatically renew", "auto-renew", "auto renew", "evergreen", "successive term", "successive one-year", "successive annual", "automatically continue", "automatically extend", "rollover", "shall renew"],
+      "description": "Clause contains auto-renewal language — the agreement renews automatically unless action is taken before a deadline.",
+      "exampleClause": "This agreement shall automatically renew for successive one-year terms unless either party provides written notice of non-renewal at least 60 days prior to the end of the then-current term."
+    },
+    {
+      "id": "date_002",
+      "category": "Notice Period",
+      "riskLevel": "medium",
+      "isDatePattern": true,
+      "dateType": "notice-period",
+      "keywords": ["prior written notice", "days notice", "days' notice", "advance notice", "written notification", "notice of termination", "notice period", "days prior to", "days before termination", "days before expiration"],
+      "description": "Clause specifies a required notice period — action must be taken within a specific timeframe or rights are forfeited.",
+      "exampleClause": "Either party may terminate this agreement upon 90 days prior written notice to the other party delivered by certified mail."
+    },
+    {
+      "id": "date_003",
+      "category": "Expiration / End Date",
+      "riskLevel": "low",
+      "isDatePattern": true,
+      "dateType": "expiration",
+      "keywords": ["expires on", "expiration date", "terminates on", "effective through", "term ends", "end date", "initial term", "contract term of", "term shall be", "term commencing"],
+      "description": "Clause specifies an explicit expiration or termination date for the agreement or an obligation.",
+      "exampleClause": "This agreement shall expire on December 31, 2026 unless renewed in writing by both parties at least 30 days prior to that date."
+    },
+    {
+      "id": "date_004",
+      "category": "Deadline / Time Limit",
+      "riskLevel": "medium",
+      "isDatePattern": true,
+      "dateType": "deadline",
+      "keywords": ["no later than", "within days of", "must be completed by", "time is of the essence", "not later than", "by the due date", "due within", "must be received by", "on or before"],
+      "description": "Clause imposes a hard deadline or time limit for performance of a specific obligation.",
+      "exampleClause": "Payment must be received no later than 30 days from the invoice date. Time is of the essence with respect to all payment obligations under this agreement."
+    },
+    {
+      "id": "date_005",
+      "category": "Cure Period",
+      "riskLevel": "low",
+      "isDatePattern": true,
+      "dateType": "cure-period",
+      "keywords": ["cure period", "right to cure", "opportunity to cure", "remedy the breach", "days to cure", "days to remedy", "cure such breach", "cure default", "notice of breach"],
+      "description": "Clause provides a window after breach notification during which the breaching party may remedy the default before termination.",
+      "exampleClause": "In the event of a material breach, the non-breaching party shall provide written notice and the breaching party shall have 30 days from receipt to cure such breach before termination rights arise."
+    },
+    {
+      "id": "date_006",
+      "category": "Review / Renegotiation Window",
+      "riskLevel": "low",
+      "isDatePattern": true,
+      "dateType": "review-window",
+      "keywords": ["annual review", "pricing review", "open for renegotiation", "subject to renegotiation", "renegotiated annually", "review period", "subject to review", "renegotiate"],
+      "description": "Clause specifies a window during which pricing or other terms may be reviewed, adjusted, or renegotiated.",
+      "exampleClause": "Pricing terms shall be subject to annual review and renegotiation during the 30-day window preceding each anniversary of the effective date of this agreement."
+    }
+  ]
+}

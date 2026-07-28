@@ -1,0 +1,70 @@
+{
+  "contractType": "employment",
+  "description": "Patterns for employment contracts: non-competes, IP assignment, termination, compensation",
+  "patterns": [
+    {
+      "id": "emp_001",
+      "category": "Non-Compete",
+      "riskLevel": "high",
+      "keywords": ["non-compete", "non-competition", "compete", "competing business", "restricted activity", "covenant not to compete", "competitive activity"],
+      "description": "Overly broad non-compete clauses with unreasonable geographic scope, duration, or industry coverage that effectively prevent future employment.",
+      "exampleClause": "Employee agrees that during employment and for a period of 24 months following termination, employee shall not directly or indirectly engage in any business that competes with the company in any capacity within any jurisdiction where the company operates."
+    },
+    {
+      "id": "emp_002",
+      "category": "IP Assignment",
+      "riskLevel": "critical",
+      "keywords": ["intellectual property", "invention", "work for hire", "assign", "ownership", "proprietary", "created outside", "personal time", "moonlighting"],
+      "description": "Overly broad IP assignment clauses that claim ownership of inventions created outside work hours using personal resources, unrelated to company business.",
+      "exampleClause": "Employee hereby assigns to the company all right, title, and interest in any invention, work, or development conceived or created during the term of employment, whether or not related to company business and whether or not created during working hours."
+    },
+    {
+      "id": "emp_003",
+      "category": "At-Will Termination",
+      "riskLevel": "medium",
+      "keywords": ["at-will", "at will", "terminate at any time", "without cause", "without notice", "employment at will", "terminated immediately"],
+      "description": "At-will termination clauses that allow immediate termination without notice or severance, especially when paired with long notice periods required from the employee.",
+      "exampleClause": "Your employment is at-will and may be terminated by the company at any time, with or without cause, and with or without notice."
+    },
+    {
+      "id": "emp_004",
+      "category": "Non-Solicitation",
+      "riskLevel": "medium",
+      "keywords": ["non-solicitation", "solicit", "recruit", "poach", "customers", "clients", "employees", "vendors", "business relationships"],
+      "description": "Broad non-solicitation clauses covering all company contacts for extended periods after departure.",
+      "exampleClause": "For a period of 2 years following termination, employee shall not solicit, recruit, or induce any employee, customer, client, or vendor of the company to cease or modify their relationship with the company."
+    },
+    {
+      "id": "emp_005",
+      "category": "Compensation Clawback",
+      "riskLevel": "high",
+      "keywords": ["clawback", "repay", "repayment", "signing bonus", "training costs", "forfeiture", "recoup", "recover compensation"],
+      "description": "Clawback clauses requiring repayment of signing bonuses, relocation costs, or training expenses upon early departure — often with aggressive repayment schedules.",
+      "exampleClause": "If employee voluntarily resigns or is terminated for cause within 24 months of the start date, employee shall repay the full signing bonus and any training costs incurred by the company."
+    },
+    {
+      "id": "emp_006",
+      "category": "Confidentiality Scope",
+      "riskLevel": "medium",
+      "keywords": ["confidential", "proprietary information", "trade secret", "disclose", "perpetual", "indefinite", "forever", "all information"],
+      "description": "Overly broad or perpetual confidentiality clauses covering information that would normally be publicly known or become public through no fault of the employee.",
+      "exampleClause": "Employee agrees to maintain in strict confidence, both during and after employment, all information obtained in connection with employment, for an indefinite period following the termination of employment."
+    },
+    {
+      "id": "emp_007",
+      "category": "Mandatory Overtime",
+      "riskLevel": "medium",
+      "keywords": ["overtime", "additional hours", "as required", "reasonable overtime", "without additional compensation", "salary covers", "exempt"],
+      "description": "Clauses requiring unlimited overtime as part of the agreed compensation without additional pay, potentially misclassifying employees as exempt.",
+      "exampleClause": "Employee agrees to work such hours as are necessary to fulfill the duties of the position, including evenings and weekends as required, and acknowledges that the base salary compensates for all hours worked."
+    },
+    {
+      "id": "emp_008",
+      "category": "Dispute Resolution",
+      "riskLevel": "high",
+      "keywords": ["arbitration", "binding arbitration", "waive", "class action", "jury trial", "dispute", "mandatory"],
+      "description": "Mandatory arbitration clauses in employment contracts that waive the right to court proceedings for discrimination, harassment, or wage claims.",
+      "exampleClause": "Any and all disputes relating to or arising out of this employment, including claims of discrimination or harassment, shall be resolved exclusively by binding arbitration, and employee expressly waives the right to a jury trial."
+    }
+  ]
+}

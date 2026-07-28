@@ -1,0 +1,18 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY tsconfig.json ./
+COPY src ./src
+
+# Build
+RUN npm run build
+
+COPY data ./data
+
+EXPOSE 3001
+
+CMD ["node", "dist/server.js"]

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClauseGuard — AI Contract Governance</title>
+  <meta name="description" content="ClauseGuard: AI-powered contract risk detection and negotiation drafting for financial agents. Upload a contract, get flagged risky clauses and ready-to-send counter-terms." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Background particles -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow glow-1" aria-hidden="true"></div>
+  <div class="bg-glow glow-2" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="header" role="banner">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2L4 6.5V13C4 18.55 8.34 23.74 14 25C19.66 23.74 24 18.55 24 13V6.5L14 2Z" fill="url(#shield-grad)"/>
+            <path d="M10 13.5L12.5 16L18 10.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="shield-grad" x1="4" y1="2" x2="24" y2="25" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#818CF8"/>
+                <stop offset="1" stop-color="#6366F1"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="logo-text">Clause<span class="logo-accent">Guard</span></span>
+      </div>
+      <div class="header-badge">
+        <span class="badge-dot"></span>
+        AI Governance Layer
+      </div>
+    </div>
+  </header>
+
+  <main class="main" role="main">
+
+    <!-- ============================================================ -->
+    <!-- SECTION 1: Upload / Input                                    -->
+    <!-- ============================================================ -->
+    <section id="upload-section" class="section upload-section" aria-labelledby="upload-heading">
+      <div class="section-header">
+        <div class="step-indicator">
+          <span class="step-num">01</span>
+          <div class="step-line"></div>
+        </div>
+        <div>
+          <h1 id="upload-heading" class="section-title">Submit Contract for Review</h1>
+          <p class="section-subtitle">Upload a PDF, DOCX, or TXT file — or paste the contract text directly.</p>
+        </div>
+      </div>
+
+      <div class="upload-area" id="upload-area" role="region" aria-label="Contract upload area">
+        <!-- Drag & Drop Zone -->
+        <div class="drop-zone" id="drop-zone" tabindex="0" role="button" aria-label="Drop files here or click to browse">
+          <div class="drop-zone-inner">
+            <div class="drop-icon" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <rect width="40" height="40" rx="12" fill="rgba(99,102,241,0.12)"/>
+                <path d="M20 12v12M15 17l5-5 5 5" stroke="#818CF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 28h16" stroke="#818CF8" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <p class="drop-primary">Drop your contract here</p>
+            <p class="drop-secondary">PDF, DOCX, or TXT · Max 20MB</p>
+            <button class="btn btn-outline" id="browse-btn" type="button">Browse Files</button>
+          </div>
+          <input type="file" id="file-input" accept=".pdf,.docx,.txt" aria-label="File upload input" />
+        </div>
+
+        <div class="input-divider" aria-hidden="true">
+          <span>or paste text</span>
+        </div>
+
+        <!-- Text Paste Area -->
+        <div class="text-input-container">
+          <textarea
+            id="contract-text"
+            class="contract-textarea"
+            placeholder="Paste the full contract text here…"
+            aria-label="Contract text input"
+            rows="10"
+          ></textarea>
+          <div class="textarea-meta" id="textarea-meta" aria-live="polite"></div>
+        </div>
+
+        <!-- Contract name (optional) -->
+        <div class="contract-name-row">
+          <label for="contract-name" class="input-label">Contract Name <span class="optional">(optional)</span></label>
+          <input
+            type="text"
+            id="contract-name"
+            class="text-input"
+            placeholder="e.g. Chase Sapphire Credit Agreement"
+            aria-label="Contract name"
+          />
+        </div>
+
+        <!-- Analyze Button -->
+        <button class="btn btn-primary btn-large" id="analyze-btn" type="button" aria-label="Analyze contract for risks">
+          <span class="btn-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="9" cy="9" r="6" stroke="white" stroke-width="1.5"/>
+              <path d="M13.5 13.5L17 17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M9 6v3l2 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          Analyze Contract
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 2: Processing State                                  -->
+    <!-- ============================================================ -->
+    <section id="processing-section" class="section processing-section hidden" aria-live="polite" aria-label="Processing status">
+      <div class="processing-card">
+        <div class="processing-animation" aria-hidden="true">
+          <div class="pulse-ring"></div>
+          <div class="pulse-ring delay-1"></div>
+          <div class="pulse-ring delay-2"></div>
+          <div class="shield-center">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <path d="M16 3L5 8V15C5 21.63 9.84 27.71 16 29C22.16 27.71 27 21.63 27 15V8L16 3Z" fill="url(#shield-proc)"/>
+              <defs>
+                <linearGradient id="shield-proc" x1="5" y1="3" x2="27" y2="29" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#818CF8"/>
+                  <stop offset="1" stop-color="#6366F1"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
+        <h2 class="processing-title">Analyzing Contract</h2>
+        <p class="processing-step" id="processing-step">Parsing document…</p>
+        <div class="progress-bar-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-bar-container">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 3: Error State                                        -->
+    <!-- ============================================================ -->
+    <section id="error-section" class="section error-section hidden" aria-live="assertive" aria-label="Error message">
+      <div class="error-card">
+        <div class="error-icon" aria-hidden="true">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="20" fill="rgba(239,68,68,0.12)" stroke="rgba(239,68,68,0.3)" stroke-width="1.5"/>
+            <path d="M24 16v10M24 31v1" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h2 class="error-title">Analysis Failed</h2>
+        <p class="error-message" id="error-message">An unexpected error occurred. Please try again.</p>
+        <button class="btn btn-outline" id="error-retry-btn" type="button">Try Again</button>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 4: Results                                            -->
+    <!-- ============================================================ -->
+    <section id="results-section" class="section results-section hidden" aria-labelledby="results-heading">
+
+      <!-- Results Header -->
+      <div class="results-header">
+        <div class="section-header">
+          <div class="step-indicator">
+            <span class="step-num">02</span>
+            <div class="step-line"></div>
+          </div>
+          <div>
+            <h2 id="results-heading" class="section-title">Risk Analysis Results</h2>
+            <p class="section-subtitle" id="results-subtitle">Review flagged clauses and accept, edit, or discard each suggestion.</p>
+          </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar" id="stats-bar" role="region" aria-label="Analysis statistics">
+          <div class="stat-card stat-total">
+            <span class="stat-value" id="stat-total">0</span>
+            <span class="stat-label">Total Clauses</span>
+          </div>
+          <div class="stat-card stat-flagged">
+            <span class="stat-value" id="stat-flagged">0</span>
+            <span class="stat-label">Flagged</span>
+          </div>
+          <div class="stat-card stat-critical">
+            <span class="stat-value" id="stat-critical">0</span>
+            <span class="stat-label">Critical</span>
+          </div>
+          <div class="stat-card stat-time">
+            <span class="stat-value" id="stat-time">0s</span>
+            <span class="stat-label">Processed In</span>
+          </div>
+        </div>
+
+        <!-- Signature Status Banner -->
+        <div id="sig-banner" class="sig-banner hidden" role="status" aria-live="polite">
+          <span class="sig-banner-icon" id="sig-banner-icon" aria-hidden="true"></span>
+          <span class="sig-banner-msg" id="sig-banner-msg"></span>
+        </div>
+
+        <!-- Key Dates Panel -->
+        <div id="key-dates-panel" class="key-dates-panel hidden" aria-labelledby="key-dates-heading">
+          <div class="key-dates-header" id="key-dates-toggle" role="button" tabindex="0" aria-expanded="true" aria-controls="key-dates-list">
+            <div class="key-dates-title">
+              <span class="key-dates-icon" aria-hidden="true">📅</span>
+              <span id="key-dates-heading">Key Dates &amp; Deadlines</span>
+              <span class="key-dates-count" id="key-dates-count">0</span>
+            </div>
+            <span class="key-dates-chevron" aria-hidden="true">▾</span>
+          </div>
+          <ul class="key-dates-list" id="key-dates-list" role="list">
+            <!-- Populated by app.js -->
+          </ul>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs" role="tablist" aria-label="Filter clauses">
+          <button class="tab-btn active" data-filter="flagged" role="tab" aria-selected="true" id="tab-flagged">
+            Flagged Clauses
+            <span class="tab-count" id="tab-count-flagged">0</span>
+          </button>
+          <button class="tab-btn" data-filter="all" role="tab" aria-selected="false" id="tab-all">
+            All Clauses
+            <span class="tab-count" id="tab-count-all">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Clauses Container -->
+      <div class="clauses-container" id="clauses-container" aria-label="Contract clauses list">
+        <!-- Populated by app.js -->
+      </div>
+
+      <!-- Accepted count bar -->
+      <div class="accepted-bar hidden" id="accepted-bar">
+        <div class="accepted-bar-inner">
+          <span class="accepted-count" id="accepted-count-text">0 revision(s) accepted</span>
+          <button class="btn btn-primary" id="export-btn" type="button" aria-label="Export negotiation email">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0">
+              <path d="M2 4l6 4 6-4M2 4h12v9a1 1 0 01-1 1H3a1 1 0 01-1-1V4z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+            Export Negotiation Email
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- SECTION 5: Email Export                                      -->
+    <!-- ============================================================ -->
+    <section id="export-section" class="section export-section hidden" aria-labelledby="export-heading">
+      <div class="section-header">
+        <div class="step-indicator">
+          <span class="step-num">03</span>
+        </div>
+        <div>
+          <h2 id="export-heading" class="section-title">Negotiation Email</h2>
+          <p class="section-subtitle">Review and copy the drafted negotiation email below.</p>
+        </div>
+      </div>
+
+      <div class="email-card">
+        <div class="email-header-row">
+          <div class="email-field">
+            <span class="email-label">Subject:</span>
+            <span class="email-subject" id="email-subject"></span>
+          </div>
+          <button class="btn btn-outline btn-sm" id="copy-email-btn" type="button" aria-label="Copy email to clipboard">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M4 3V2.5A1.5 1.5 0 015.5 1H10a1.5 1.5 0 011.5 1.5V9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            Copy Email
+          </button>
+        </div>
+        <div class="email-body-container">
+          <pre class="email-body" id="email-body"></pre>
+        </div>
+      </div>
+
+      <div class="export-actions">
+        <button class="btn btn-outline" id="back-to-results-btn" type="button">← Back to Results</button>
+        <button class="btn btn-outline" id="new-analysis-btn" type="button">Analyze Another Contract</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast" role="alert" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

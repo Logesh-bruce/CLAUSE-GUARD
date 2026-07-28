@@ -1,0 +1,102 @@
+[
+  {
+    "text": "Tenant agrees to automatic renewal of this lease for successive 12-month terms unless written notice is given at least 90 days prior to expiration.",
+    "riskLevel": "HIGH",
+    "category": "automatic_renewal"
+  },
+  {
+    "text": "Landlord may enter the premises at any time without prior notice for any reason.",
+    "riskLevel": "HIGH",
+    "category": "privacy_violation"
+  },
+  {
+    "text": "Service provider's total liability under this agreement shall not exceed $50, regardless of the damages incurred.",
+    "riskLevel": "HIGH",
+    "category": "liability_cap"
+  },
+  {
+    "text": "Employee agrees not to compete with the company for a period of 5 years following termination within a 500-mile radius.",
+    "riskLevel": "HIGH",
+    "category": "non_compete"
+  },
+  {
+    "text": "Tenant waives all rights to a security deposit refund regardless of the condition of the premises at move-out.",
+    "riskLevel": "HIGH",
+    "category": "deposit_forfeiture"
+  },
+  {
+    "text": "The company may terminate this agreement at any time for any reason without notice.",
+    "riskLevel": "HIGH",
+    "category": "termination_without_cause"
+  },
+  {
+    "text": "Tenant is responsible for all repairs and maintenance regardless of cause or fault.",
+    "riskLevel": "HIGH",
+    "category": "repair_responsibility"
+  },
+  {
+    "text": "Employee agrees to indemnify and hold harmless the employer from any claims arising from employment.",
+    "riskLevel": "HIGH",
+    "category": "indemnification"
+  },
+  {
+    "text": "Landlord may increase rent at any time by any amount with 7 days notice.",
+    "riskLevel": "HIGH",
+    "category": "rent_increase"
+  },
+  {
+    "text": "Client waives all rights to a refund for services not rendered.",
+    "riskLevel": "HIGH",
+    "category": "refund_waiver"
+  },
+  {
+    "text": "Tenant agrees to pay all legal fees incurred by landlord in any dispute regardless of outcome.",
+    "riskLevel": "HIGH",
+    "category": "legal_fees"
+  },
+  {
+    "text": "Employee assigns all inventions and creative works to the company, including those created on personal time.",
+    "riskLevel": "HIGH",
+    "category": "ip_assignment"
+  },
+  {
+    "text": "This agreement may be amended at any time by the company without notice to the other party.",
+    "riskLevel": "HIGH",
+    "category": "unilateral_amendment"
+  },
+  {
+    "text": "Tenant agrees that the landlord is not liable for any injuries on the premises regardless of negligence.",
+    "riskLevel": "HIGH",
+    "category": "liability_waiver"
+  },
+  {
+    "text": "Employee agrees to work overtime without additional compensation as required by management.",
+    "riskLevel": "MEDIUM",
+    "category": "unpaid_overtime"
+  },
+  {
+    "text": "Late fees of $50 per day shall accrue for any payment received after the due date.",
+    "riskLevel": "MEDIUM",
+    "category": "excessive_late_fees"
+  },
+  {
+    "text": "Tenant may not sublet or assign this lease under any circumstances without landlord approval.",
+    "riskLevel": "MEDIUM",
+    "category": "sublet_restriction"
+  },
+  {
+    "text": "Either party may terminate this agreement with 30 days written notice.",
+    "riskLevel": "LOW",
+    "category": "standard_termination"
+  },
+  {
+    "text": "Rent shall be paid on the 1st of each month.",
+    "riskLevel": "LOW",
+    "category": "standard_payment"
+  },
+  {
+    "text": "Employee agrees not to disclose confidential company information during or after employment.",
+    "riskLevel": "LOW",
+    "category": "standard_confidentiality"
+  }
+]
