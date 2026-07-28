@@ -3,6 +3,9 @@ const path = require('path');
 
 const ADV_DIR = path.join(__dirname, '../../test-data/adversarial');
 const BEN_DIR = path.join(__dirname, '../../test-data/benign');
+const UNSEEN_DIR = path.join(__dirname, '../../test-data/unseen-corpus');
+
+if (!fs.existsSync(UNSEEN_DIR)) fs.mkdirSync(UNSEEN_DIR, { recursive: true });
 
 const adversarialCases = [
   {
@@ -110,12 +113,34 @@ const benignCases = [
   { id: 'ben-10', text: "10. ASSIGNMENT. Neither party may assign this agreement without prior written consent." }
 ];
 
+const unseenCorpusCases = [
+  { id: 'unseen-01', text: "1. DEFAULT. Any failure to remit payment within 5 days of the due date shall render the entire remaining balance immediately due and payable in full without further notice." },
+  { id: 'unseen-02', text: "2. DISPUTES. All disputes shall be finally resolved by binding arbitration in New York, and the User explicitly waives any right to bring or participate in a class action lawsuit." },
+  { id: 'unseen-03', text: "3. CHANGES. The Company reserves the absolute right to unilaterally amend these Terms of Service at any time, and continued use constitutes binding acceptance of all changes." },
+  { id: 'unseen-04', text: "4. DATA. We may share, sell, or distribute your personal and financial information to our network of third-party affiliates and marketing partners at our discretion." },
+  { id: 'unseen-05', text: "5. LIABILITY. In no event shall the Provider's total aggregate liability exceed the total amounts actually paid by the Client in the one (1) month immediately preceding the event." },
+  { id: 'unseen-06', text: "6. NON-COMPETE. The Employee agrees not to engage in any competitive business activity within a 100-mile radius for a period of three (3) years following termination." },
+  { id: 'unseen-07', text: "7. INTELLECTUAL PROPERTY. Contractor hereby assigns all rights, title, and interest in and to any intellectual property developed, whether or not related to the Services." },
+  { id: 'unseen-08', text: "8. RENEWAL. This lease will automatically continue for successive one-year periods unless Tenant provides written notice of non-renewal at least 120 days before expiration." },
+  { id: 'unseen-09', text: "9. TERMINATION. The Employer may terminate the Employee's employment at any time, for any reason or no reason, without cause and without prior notice or severance." },
+  { id: 'unseen-10', text: "10. GUARANTEE. By signing below, the principal jointly and severally guarantees unconditionally the full performance of all financial obligations of the Borrower." },
+  { id: 'unseen-11', text: "11. INTEREST. The applicable interest rate is variable and may be adjusted upwards at the sole discretion of the Lender based on prevailing market conditions." },
+  { id: 'unseen-12', text: "12. FEES. You agree to pay a late fee of 5% of the outstanding balance for each month a payment is delayed, which shall compound daily until fully paid." },
+  { id: 'unseen-13', text: "13. PREPAYMENT. Should the Borrower elect to satisfy the loan prior to maturity, a yield maintenance premium equivalent to 5% of the principal shall apply." },
+  { id: 'unseen-14', text: "14. INDEMNITY. You shall indemnify, defend, and hold us harmless from any and all claims, losses, or damages regardless of whether caused by our sole negligence." },
+  { id: 'unseen-15', text: "15. COLLATERAL. Borrower hereby grants Lender a continuing security interest in all presently owned or hereafter acquired assets, equipment, and accounts receivable." }
+];
+
 adversarialCases.forEach(c => {
   fs.writeFileSync(path.join(ADV_DIR, `${c.id}.json`), JSON.stringify(c, null, 2));
 });
 
 benignCases.forEach(c => {
   fs.writeFileSync(path.join(BEN_DIR, `${c.id}.json`), JSON.stringify(c, null, 2));
+});
+
+unseenCorpusCases.forEach(c => {
+  fs.writeFileSync(path.join(UNSEEN_DIR, `${c.id}.json`), JSON.stringify(c, null, 2));
 });
 
 console.log('Created test data files.');
