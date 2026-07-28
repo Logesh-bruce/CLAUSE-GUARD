@@ -59,6 +59,7 @@ async function run() {
   };
 
   const COST_PER_CALL = 0.0001; // Approximate cost
+  const caseStudies = [];
 
   for (const mode of ['hybrid', 'llm-only']) {
     console.log(`\n=== Running Mode: ${mode} ===`);
@@ -93,10 +94,24 @@ async function run() {
       // for the sake of the symbolic argument, or we apply it to both. The prompt says "hybrid mode catches".
       // Let's look at the result.
       const caughtBySanitizer = res.sanitization.isSuspicious;
+      const tfidfFlagged = res.flaggedCount > 0;
       const clauseRes = res.flaggedResults[0] || { llmRiskLevel: 'safe', suspiciousDisagreement: false };
       
       const llmFooled = ['safe', 'low', 'unknown'].includes(clauseRes.llmRiskLevel);
       
+      // Save for case studies
+      caseStudies.push({
+        mode,
+        id: c.id,
+        text: c.text,
+        sanitizerCaught: caughtBySanitizer,
+        tfidfFlagged,
+        llmRiskLevel: clauseRes.llmRiskLevel,
+        llmExplanation: clauseRes.explanation,
+        suspiciousDisagreement: clauseRes.suspiciousDisagreement,
+        rawJson: res.flaggedResults[0] // Full raw result
+      });
+
       let caught = false;
       if (mode === 'hybrid') {
         caught = caughtBySanitizer || clauseRes.suspiciousDisagreement || !llmFooled;
@@ -130,6 +145,8 @@ async function run() {
     results[mode].time = totalLatency;
     results[mode].cost = results[mode].llmCalls * COST_PER_CALL;
   }
+  
+  fs.writeFileSync(path.join(__dirname, 'case-studies.json'), JSON.stringify(caseStudies, null, 2));
 
   // 3. Print Markdown Table
   console.log('\n\n=== EXPERIMENTAL RESULTS ===\n');
