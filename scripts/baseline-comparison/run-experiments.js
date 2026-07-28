@@ -4,6 +4,7 @@ const http = require('http');
 
 const ADV_DIR = path.join(__dirname, '../../test-data/adversarial');
 const BEN_DIR = path.join(__dirname, '../../test-data/benign');
+const UNSEEN_DIR = path.join(__dirname, '../../test-data/unseen-corpus');
 const API_URL = 'http://localhost:3000/api/analyze';
 
 // 1. Load Data
@@ -15,12 +16,7 @@ function loadJsonDir(dir) {
 
 const adversarialCases = loadJsonDir(ADV_DIR);
 const benignCases = loadJsonDir(BEN_DIR);
-
-// Load Corpus from risk patterns
-const { loadRiskPatterns } = require('../../src/patterns/index');
-const riskPatterns = loadRiskPatterns();
-// Limit to 35 for speed, one per pattern
-let corpusCases = riskPatterns.map(p => ({ id: `corpus-${p.id}`, text: p.exampleClause }));
+const unseenCorpusCases = loadJsonDir(UNSEEN_DIR);
 
 // Helper: Make API Request
 function analyze(text, mode) {
@@ -68,21 +64,21 @@ async function run() {
     console.log(`\n=== Running Mode: ${mode} ===`);
     let totalLatency = 0;
     
-    // --- Corpus (Recall) ---
-    console.log(`Testing Corpus (${corpusCases.length} items)...`);
+    // --- Unseen Corpus (Recall) ---
+    console.log(`Testing Unseen Corpus (${unseenCorpusCases.length} items)...`);
     let recallHits = 0;
-    for (const c of corpusCases) {
+    for (const c of unseenCorpusCases) {
       const res = await analyze(c.text, mode);
       totalLatency += res.processingTime;
       results[mode].llmCalls += res.flaggedCount;
       
       // Recall is if the system correctly flagged it (either LLM flagged it, or consistency check caught it)
       const flagged = res.flaggedResults.some(r => 
-        ['medium', 'high', 'critical'].includes(r.llmRiskLevel) || r.suspiciousDisagreement
+        ['medium', 'high', 'critical'].includes(r.llmRiskLevel) || r.suspiciousDisagreement || res.sanitization.isSuspicious
       );
       if (flagged) recallHits++;
     }
-    results[mode].recall = (recallHits / corpusCases.length) * 100;
+    results[mode].recall = (recallHits / unseenCorpusCases.length) * 100;
 
     // --- Adversarial (ASR) ---
     console.log(`Testing Adversarial (${adversarialCases.length} items)...`);
