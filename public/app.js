@@ -194,6 +194,10 @@ async function startAnalysis() {
     return;
   }
 
+  const modeToggle = $('mode-toggle');
+  const isLlmOnly = modeToggle && modeToggle.checked;
+  const queryParam = isLlmOnly ? '?mode=llm-only' : '?mode=hybrid';
+
   // Reset state
   state.acceptedRevisions.clear();
   state.currentResults = null;
@@ -205,38 +209,58 @@ async function startAnalysis() {
     startProgress(30, 'Parsing document…');
 
     let response;
+    const headers = { 'Accept': 'application/x-ndjson' };
+
     if (file) {
       const formData = new FormData();
       formData.append('file', file);
 
-      startProgress(55, 'Splitting clauses…');
-      response = await fetch('/api/analyze', { method: 'POST', body: formData });
+      startProgress(55, 'Sending document for analysis…');
+      response = await fetch(`/api/analyze${queryParam}`, { method: 'POST', headers, body: formData });
     } else {
-      startProgress(55, 'Splitting clauses…');
-      response = await fetch('/api/analyze', {
+      startProgress(55, 'Sending document for analysis…');
+      headers['Content-Type'] = 'application/json';
+      response = await fetch(`/api/analyze${queryParam}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ text }),
       });
     }
 
-    startProgress(75, 'Running TF-IDF risk detection…');
-
-    const data = await response.json();
-
-    if (!response.ok || data.error) {
-      throw new Error(data.message || `Server error: ${response.status}`);
+    if (!response.ok) {
+      const errText = await response.text();
+      try {
+        const parsed = JSON.parse(errText);
+        throw new Error(parsed.message || `Server error: ${response.status}`);
+      } catch (e) {
+        throw new Error(`Server error: ${response.status}`);
+      }
     }
 
-    startProgress(90, 'Generating AI explanations…');
+    startProgress(75, 'Receiving live analysis…');
 
-    // Small delay so user sees progress hit 90
-    await new Promise(r => setTimeout(r, 400));
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let boundary = buffer.indexOf('\n');
+      while (boundary !== -1) {
+        const line = buffer.slice(0, boundary);
+        buffer = buffer.slice(boundary + 1);
+        boundary = buffer.indexOf('\n');
+        
+        if (!line.trim()) continue;
+        const data = JSON.parse(line);
+        handleStreamEvent(data);
+      }
+    }
+
     finishProgress();
     await new Promise(r => setTimeout(r, 300));
-
-    state.currentResults = data;
-    renderResults(data);
     showSection('results');
 
   } catch (err) {
@@ -248,19 +272,68 @@ async function startAnalysis() {
 
 els.errorRetryBtn.addEventListener('click', () => showSection('upload'));
 
+function handleStreamEvent(data) {
+  if (data.type === 'init') {
+    state.currentResults = data;
+    // initial render
+    renderResults(data);
+  } else if (data.type === 'clause_done' || data.type === 'clause_patched') {
+    const item = data.item;
+    // update state
+    if (state.currentResults && state.currentResults.allResults) {
+      const idx = state.currentResults.allResults.findIndex(r => r.clause.id === item.clause.id);
+      if (idx !== -1) {
+        state.currentResults.allResults[idx] = item;
+      }
+    }
+    // live update DOM
+    const card = els.clausesContainer.querySelector(`[data-clause-id="${item.clause.id}"]`);
+    if (card) {
+      const newCard = buildClauseCard(item, 0); // index doesn't matter for individual updates
+      card.replaceWith(newCard);
+    }
+    // update heatmap
+    updateHeatmapCell(item);
+  } else if (data.type === 'done') {
+    if (state.currentResults) {
+      state.currentResults.processingTime = data.processingTime;
+      // Re-render stats
+      const timeMs = data.processingTime;
+      els.statTime.textContent = timeMs < 1000 ? `${timeMs}ms` : `${(timeMs / 1000).toFixed(1)}s`;
+      
+      const criticalCount = state.currentResults.allResults.filter(r => r.isFlagged && r.llmRiskLevel === 'critical').length;
+      els.statCritical.textContent = criticalCount;
+    }
+  }
+}
+
+// Toggle Mode UI update
+const modeToggle = $('mode-toggle');
+if (modeToggle) {
+  modeToggle.addEventListener('change', (e) => {
+    const hybridLabel = $('mode-label-hybrid');
+    const llmLabel = $('mode-label-llm');
+    if (hybridLabel) hybridLabel.classList.toggle('active', !e.target.checked);
+    if (llmLabel) llmLabel.classList.toggle('active', e.target.checked);
+    
+    // Auto-re-analyze if we already have a contract
+    if (els.fileInput.files.length > 0 || els.contractText.value.trim().length > 0) {
+      startAnalysis();
+    }
+  });
+}
+
 // ============================================================
 // Render Results
 // ============================================================
 function renderResults(data) {
-  const { totalClauses, flaggedCount, allResults, flaggedResults, processingTime, signatureCheck, keyDates } = data;
+  const { totalClauses, flaggedCount, signatureCheck, keyDates } = data;
 
   // Stats
   els.statTotal.textContent = totalClauses;
   els.statFlagged.textContent = flaggedCount;
-  els.statCritical.textContent = flaggedResults.filter(r => r.riskLevel === 'critical').length;
-  els.statTime.textContent = processingTime < 1000
-    ? `${processingTime}ms`
-    : `${(processingTime / 1000).toFixed(1)}s`;
+  els.statCritical.textContent = 0; // updated at the end
+  els.statTime.textContent = '...';
 
   // Tab counts
   els.tabCountFlagged.textContent = flaggedCount;
@@ -284,7 +357,46 @@ function renderResults(data) {
   // Key Dates panel
   renderKeyDates(keyDates || []);
 
+  renderHeatmap();
   renderClauses();
+}
+
+function renderHeatmap() {
+  const grid = $('heatmap-grid');
+  if (!grid || !state.currentResults) return;
+  grid.innerHTML = '';
+  
+  state.currentResults.allResults.forEach(item => {
+    const cell = document.createElement('div');
+    const isUnknown = item.isFlagged && (item.llmRiskLevel === 'unknown' || !item.llmRiskLevel);
+    const riskClass = isUnknown ? 'loading' : (item.isFlagged ? item.llmRiskLevel : 'safe');
+    
+    cell.className = `heatmap-cell ${riskClass}`;
+    cell.title = `Clause ${item.clause.id}`;
+    cell.dataset.heatmapId = item.clause.id;
+    
+    cell.addEventListener('click', () => {
+      setFilter('all');
+      setTimeout(() => {
+        const card = els.clausesContainer.querySelector(`[data-clause-id="${item.clause.id}"]`);
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (!card.classList.contains('expanded')) toggleCard(card);
+        }
+      }, 100);
+    });
+    grid.appendChild(cell);
+  });
+}
+
+function updateHeatmapCell(item) {
+  const grid = $('heatmap-grid');
+  if (!grid) return;
+  const cell = grid.querySelector(`[data-heatmap-id="${item.clause.id}"]`);
+  if (cell) {
+    const riskClass = item.isFlagged ? (item.llmRiskLevel || 'safe') : 'safe';
+    cell.className = `heatmap-cell ${riskClass}`;
+  }
 }
 
 // ============================================================
@@ -430,8 +542,12 @@ function buildClauseCard(item, index) {
     ? clause.text.substring(0, 200) + '…'
     : clause.text;
 
-  const badgeClass = riskLevel ? `badge-${riskLevel}` : '';
-  const badgeLabel = riskLevel ? riskLevel.toUpperCase() : '';
+  const actualRiskLevel = llmSuccess ? (item.llmRiskLevel || riskLevel) : riskLevel;
+  const badgeClass = actualRiskLevel ? `badge-${actualRiskLevel}` : '';
+  const badgeLabel = actualRiskLevel ? actualRiskLevel.toUpperCase() : '';
+
+  const latencyBadge = item.llmLatency ? `<span class="clause-latency" title="LLM Processing Time">⚡ ${item.llmLatency}ms</span>` : '';
+  const confidenceBadge = matchedPattern ? `<span class="clause-score" title="TF-IDF Confidence Score">${(score * 100).toFixed(1)}% match</span>` : '';
 
   const headerHTML = `
     <div class="clause-header" role="button" tabindex="0" aria-expanded="${card.classList.contains('expanded')}" aria-controls="clause-body-${clause.id}">
@@ -439,9 +555,11 @@ function buildClauseCard(item, index) {
       <div class="clause-header-content">
         <div class="clause-preview">${escapeHtml(previewText)}</div>
         <div class="clause-meta">
-          ${isFlagged ? `<span class="risk-badge ${badgeClass}">${badgeLabel}</span>` : ''}
+          ${isFlagged && actualRiskLevel !== 'unknown' ? `<span class="risk-badge ${badgeClass}">${badgeLabel}</span>` : ''}
+          ${isFlagged && actualRiskLevel === 'unknown' ? `<span class="risk-badge badge-medium">ANALYZING...</span>` : ''}
           ${matchedPattern ? `<span class="clause-category">${escapeHtml(matchedPattern.category)}</span>` : ''}
-          ${isFlagged ? `<span class="clause-score">${(score * 100).toFixed(1)}% match</span>` : ''}
+          ${confidenceBadge}
+          ${latencyBadge}
         </div>
       </div>
       <span class="clause-toggle" aria-hidden="true">▾</span>
