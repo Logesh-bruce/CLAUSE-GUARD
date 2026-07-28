@@ -54,8 +54,8 @@ async function run() {
   console.log('Starting experiments...');
   
   const results = {
-    hybrid: { llmCalls: 0, time: 0, cost: 0, recall: 0, asrBuckets: { caughtByConsistency: 0, consistencyMissed: 0, prefilterMissed: 0 }, fpr: 0 },
-    'llm-only': { llmCalls: 0, time: 0, cost: 0, recall: 0, asrBuckets: { caughtByConsistency: 0, consistencyMissed: 0, prefilterMissed: 0 }, fpr: 0 }
+    hybrid: { llmCalls: 0, time: 0, cost: 0, tp: 0, fp: 0, recall: 0, asrBuckets: { caughtByLLM: 0, caughtByConsistency: 0, consistencyMissed: 0, prefilterMissed: 0 }, fpr: 0 },
+    'llm-only': { llmCalls: 0, time: 0, cost: 0, tp: 0, fp: 0, recall: 0, asrBuckets: { caughtByLLM: 0, caughtByConsistency: 0, consistencyMissed: 0, prefilterMissed: 0 }, fpr: 0 }
   };
 
   const COST_PER_CALL = 0.0001; // Approximate cost
@@ -81,6 +81,7 @@ async function run() {
       if (flagged) recallHits++;
     }
     results[mode].recall = (recallHits / unseenCorpusCases.length) * 100;
+    results[mode].tp = recallHits;
 
     // --- Adversarial (ASR) ---
     console.log(`Testing Adversarial (${adversarialCases.length} items)...`);
@@ -115,13 +116,21 @@ async function run() {
           results[mode].asrBuckets.caughtByConsistency++; // Bucket (a)
         } else if (llmFooled) {
           results[mode].asrBuckets.consistencyMissed++; // Bucket (b)
+        } else {
+          results[mode].asrBuckets.caughtByLLM++; // Bucket (d)
         }
       } else {
-        // LLM only: no TF-IDF, no consistency check. 
-        if (llmFooled) {
-          results[mode].asrBuckets.consistencyMissed++;
+        // LLM only: no TF-IDF, no consistency check.
+        // The sanitizer still runs in step 0, so it can catch things.
+        if (caughtBySanitizer) {
+          results[mode].asrBuckets.caughtByConsistency++; // Technically caught by sanitizer
+        } else if (llmFooled) {
+          // If the LLM is fooled, it's a consistency miss (but no consistency check exists)
+          // To make it apples to apples with hybrid, it falls into bucket (b) 
+          results[mode].asrBuckets.consistencyMissed++; 
         } else {
-          results[mode].asrBuckets.caughtByConsistency++;
+          // LLM correctly caught it without any help
+          results[mode].asrBuckets.caughtByLLM++; // Bucket (d)
         }
       }
     }
@@ -144,6 +153,7 @@ async function run() {
       }
     }
     results[mode].fpr = (falsePositives / benignCases.length) * 100;
+    results[mode].fp = falsePositives;
 
     results[mode].time = totalLatency;
     results[mode].cost = results[mode].llmCalls * COST_PER_CALL;
@@ -162,19 +172,34 @@ async function run() {
 
   // 3. Print Markdown Table
   console.log('\n\n=== EXPERIMENTAL RESULTS ===\n');
-  console.log('| Pipeline Mode | Total LLM Calls | Latency (ms) | Est. Cost ($) | Accuracy/Recall (%) | ASR: Caught by Check (a) | ASR: Consistency Miss (b) | ASR: Pre-filter Miss (c) | False Positive Rate (%) |');
-  console.log('|---------------|-----------------|--------------|---------------|---------------------|--------------------------|---------------------------|--------------------------|-------------------------|');
+  console.log('| Pipeline Mode | Accuracy (Recall) | Precision | F1 Score | FPR (%) | ASR: Caught by Sanitizer/Check (a) | ASR: Consistency Miss (b) | ASR: Pre-filter Miss (c) | ASR: Caught by LLM (d) | True Undetected Rate (b+c) |');
+  console.log('|---------------|-------------------|-----------|----------|---------|------------------------------------|---------------------------|--------------------------|------------------------|----------------------------|');
   
   for (const mode of ['hybrid', 'llm-only']) {
     const r = results[mode];
+    
+    // Precision & F1
+    const tp = r.tp;
+    const fp = r.fp;
+    let precision = 0;
+    if (tp + fp > 0) precision = (tp / (tp + fp)) * 100;
+    let f1 = 0;
+    if (precision + r.recall > 0) f1 = 2 * (precision * r.recall) / (precision + r.recall);
+    
+    // ASR Buckets
     const a = r.asrBuckets.caughtByConsistency;
     const b = r.asrBuckets.consistencyMissed;
     const c = r.asrBuckets.prefilterMissed;
-    const aPct = ((a / adversarialCases.length) * 100).toFixed(1);
-    const bPct = ((b / adversarialCases.length) * 100).toFixed(1);
-    const cPct = ((c / adversarialCases.length) * 100).toFixed(1);
+    const d = r.asrBuckets.caughtByLLM;
+    const totalAdv = adversarialCases.length;
     
-    console.log(`| ${mode.padEnd(13)} | ${r.llmCalls.toString().padEnd(15)} | ${r.time.toString().padEnd(12)} | $${r.cost.toFixed(4).padEnd(12)} | ${r.recall.toFixed(1).padEnd(19)} | ${aPct.padEnd(24)} | ${bPct.padEnd(25)} | ${cPct.padEnd(24)} | ${r.fpr.toFixed(1).padEnd(23)} |`);
+    const aPct = ((a / totalAdv) * 100).toFixed(1);
+    const bPct = ((b / totalAdv) * 100).toFixed(1);
+    const cPct = ((c / totalAdv) * 100).toFixed(1);
+    const dPct = ((d / totalAdv) * 100).toFixed(1);
+    const undetectedPct = (((b + c) / totalAdv) * 100).toFixed(1);
+    
+    console.log(`| ${mode.padEnd(13)} | ${r.recall.toFixed(1).padEnd(17)} | ${precision.toFixed(1).padEnd(9)} | ${f1.toFixed(1).padEnd(8)} | ${r.fpr.toFixed(1).padEnd(7)} | ${aPct.padEnd(34)} | ${bPct.padEnd(25)} | ${cPct.padEnd(24)} | ${dPct.padEnd(22)} | ${undetectedPct.padEnd(26)} |`);
   }
 }
 
