@@ -104,6 +104,16 @@
           />
         </div>
 
+        <!-- Mode Toggle -->
+        <div class="mode-toggle-container" aria-label="Analysis Mode">
+          <span class="mode-label hybrid-label active" id="mode-label-hybrid">Hybrid Defense</span>
+          <label class="toggle-switch" aria-label="Toggle analysis mode">
+            <input type="checkbox" id="mode-toggle" />
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="mode-label llm-label" id="mode-label-llm">LLM-Only (Naive)</span>
+        </div>
+
         <!-- Analyze Button -->
         <button class="btn btn-primary btn-large" id="analyze-btn" type="button" aria-label="Analyze contract for risks">
           <span class="btn-icon" aria-hidden="true">
@@ -199,6 +209,17 @@
           <div class="stat-card stat-time">
             <span class="stat-value" id="stat-time">0s</span>
             <span class="stat-label">Processed In</span>
+          </div>
+        </div>
+
+        <!-- Heatmap Panel -->
+        <div class="heatmap-panel" id="heatmap-panel">
+          <div class="heatmap-header">
+            <span class="heatmap-title">Document Risk Heatmap</span>
+            <span class="heatmap-subtitle">Click to jump to clause</span>
+          </div>
+          <div class="heatmap-grid" id="heatmap-grid" role="group" aria-label="Document clauses heatmap">
+            <!-- Populated by app.js -->
           </div>
         </div>
 
