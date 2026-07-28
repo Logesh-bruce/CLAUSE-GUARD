@@ -31,7 +31,22 @@ Attack Success Rate (ASR) measures the percentage of the 15 adversarial contract
 ## Analysis
 
 ### 1. The "Paranoid Lawyer" Problem (FPR)
-The LLM-only pipeline achieved an unacceptable 70% False Positive Rate on standard benign boilerplate. Without the symbolic TF-IDF pre-filter bounding its context, the LLM hallucinates risk by hypothesizing extreme edge-case scenarios for perfectly standard clauses (e.g., flagging a standard net-30 payment clause because "it does not provide a clear process for disputing the amount owed").
+The LLM-only pipeline achieved an unacceptable 70% False Positive Rate on standard benign boilerplate. Without the symbolic TF-IDF pre-filter bounding its context, the LLM hallucinates risk by hypothesizing extreme edge-case scenarios for perfectly standard clauses. Below are three examples of the LLM's raw reasoning output on safe boilerplate clauses:
+
+**Example 1: Boilerplate Services Clause**
+> **Clause:** Provider will deliver consulting services as described in Exhibit A.
+> **LLM Risk:** `medium`
+> **LLM Reasoning:** "This clause is risky because it delegates the description of the consulting services to an external document (Exhibit A), which may not be readily available... If Exhibit A is not clear, the signing party may be left without a clear understanding of what they are paying for."
+
+**Example 2: Boilerplate Payment Clause**
+> **Clause:** Client shall pay the undisputed amounts within 30 days of invoice.
+> **LLM Risk:** `medium`
+> **LLM Reasoning:** "This clause may be risky for the signing party because it does not provide a clear process for disputing the amount owed... This could result in the signing party being forced to pay an amount they believe is incorrect."
+
+**Example 3: Confidentiality Clause**
+> **Clause:** Both parties agree to protect the other's confidential information.
+> **LLM Risk:** `medium`
+> **LLM Reasoning:** "This clause is risky because it only requires protection of confidential information, but it does not specify what constitutes confidential information or how it will be protected. This could lead to disputes and potential breaches of confidentiality."
 
 ### 2. Adversarial Robustness
 The Hybrid pipeline demonstrates superior resilience against prompt injection. 
