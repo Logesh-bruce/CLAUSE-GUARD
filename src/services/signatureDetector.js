@@ -13,34 +13,33 @@
 
 // Patterns that indicate a signature block marker is present
 const SIG_BLOCK_PATTERNS = [
-  /\bsignature\b\s*[:_\-]{0,3}/i,
+  /\bsignature\s*[:_\-]{1,3}/i,       // Requires colon, underscore, or dash
+  /^[ \t]*\bsignature\b[ \t]*$/im,     // Or alone on a line
   /\bsign\s+here\b/i,
   /\bauthorized\s+signature\b/i,
   /\bprint(?:ed)?\s+name\b\s*[:_\-]{0,3}/i,
   /\bwitnessed?\s+by\b/i,
   /\bwitness\s+signature\b/i,
-  /\binitials?\b\s*[:_\-]{0,3}/i,
+  /\binitials?\b\s*[:_\-]{1,3}/i,
   /\bby\s*[:]\s*[_\s]{3,}/i,       // "By: _____________"
   /\bx\s*[_]{3,}/i,                 // "X ___________"
   /_{6,}/,                           // 6+ underscores in a row (blank line)
   /\[signature\]/i,
   /\[sign\s+here\]/i,
-  /\bsigned\s+by\b/i,
-  /\bexecuted\s+(?:by|on|as)\b/i,
-  /\baccepted\s+by\b\s*[:_\-]{0,3}/i,
-  /\bdate\s+of\s+(?:signing|execution)\b/i,
+  /\bsigned\s+by\b\s*[:_\-]{1,3}/i,
+  /^[ \t]*\baccepted\s+by\b\s*[:_\-]{0,3}/im,
 ];
 
 // Patterns that suggest a signature field has been filled in
 // (some non-trivial content follows the label)
 const FILLED_PATTERNS = [
-  /\bsignature\b\s*[:\-]?\s*(?!_)(?!\bsignature\b)[A-Za-z]{3,}/i, // "Signature: John"
-  /\bsigned\s+by\b\s*[:\-]?\s*[A-Za-z]{3,}/i,
-  /\bprint(?:ed)?\s+name\b\s*[:\-]?\s*[A-Z][a-z]+\s+[A-Z]/,       // "Print Name: John Smith"
-  /\binitials?\b\s*[:\-]?\s*[A-Z]{1,5}\b/,                          // "Initials: JDS"
-  /\bby\s*[:\-]\s*[A-Za-z]{4,}/i,                                    // "By: Acme Corp"
-  /\baccepted\s+by\b\s*[:\-]?\s*[A-Za-z]{4,}/i,
-  /\bexecuted\s+by\b\s*[:\-]?\s*[A-Za-z]{4,}/i,
+  /\bsignature\b\s*[:\-]\s*(?!_)(?!\b(?:signature|print(?:ed)?\s+name|date|title|by)\b)[A-Za-z]{3,}/i,
+  /\bsigned\s+by\b\s*[:\-]\s*(?!_)(?!\b(?:signature|print(?:ed)?\s+name|date|title|by)\b)[A-Za-z]{3,}/i,
+  /\bprint(?:ed)?\s+name\b\s*[:\-]\s*(?!_)[A-Z][a-z]+\s+[A-Z]/,
+  /\binitials?\b\s*[:\-]\s*(?!_)[A-Z]{1,5}\b/,
+  /\bby\s*[:\-]\s*(?!_)(?!\b(?:signature|print(?:ed)?\s+name|date|title|by)\b)[A-Za-z]{4,}/i,
+  /\baccepted\s+by\b\s*[:\-]\s*(?!_)(?!\b(?:signature|print(?:ed)?\s+name|date|title|by)\b)[A-Za-z]{4,}/i,
+  /\bexecuted\s+by\b\s*[:\-]\s*(?!_)(?!\b(?:signature|print(?:ed)?\s+name|date|title|by)\b)[A-Za-z]{4,}/i,
   /\bduly\s+(?:authorized|executed|signed)\b/i,
 ];
 
