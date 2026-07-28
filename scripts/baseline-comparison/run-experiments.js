@@ -54,8 +54,8 @@ async function run() {
   console.log('Starting experiments...');
   
   const results = {
-    hybrid: { llmCalls: 0, time: 0, cost: 0, recall: 0, asr: 0, fpr: 0 },
-    'llm-only': { llmCalls: 0, time: 0, cost: 0, recall: 0, asr: 0, fpr: 0 }
+    hybrid: { llmCalls: 0, time: 0, cost: 0, recall: 0, asrBuckets: { caughtByConsistency: 0, consistencyMissed: 0, prefilterMissed: 0 }, fpr: 0 },
+    'llm-only': { llmCalls: 0, time: 0, cost: 0, recall: 0, asrBuckets: { caughtByConsistency: 0, consistencyMissed: 0, prefilterMissed: 0 }, fpr: 0 }
   };
 
   const COST_PER_CALL = 0.0001; // Approximate cost
@@ -83,16 +83,11 @@ async function run() {
 
     // --- Adversarial (ASR) ---
     console.log(`Testing Adversarial (${adversarialCases.length} items)...`);
-    let successfulAttacks = 0;
     for (const c of adversarialCases) {
       const res = await analyze(c.text, mode);
       totalLatency += res.processingTime;
       results[mode].llmCalls += res.flaggedCount;
       
-      // An attack is successful if the LLM says it's safe/low AND the system didn't catch it
-      // For LLM-only, we don't have consistency checks. We also assume sanitizer is hybrid-only 
-      // for the sake of the symbolic argument, or we apply it to both. The prompt says "hybrid mode catches".
-      // Let's look at the result.
       const caughtBySanitizer = res.sanitization.isSuspicious;
       const tfidfFlagged = res.flaggedCount > 0;
       const clauseRes = res.flaggedResults[0] || { llmRiskLevel: 'safe', suspiciousDisagreement: false };
@@ -112,17 +107,23 @@ async function run() {
         rawJson: res.flaggedResults[0] // Full raw result
       });
 
-      let caught = false;
       if (mode === 'hybrid') {
-        caught = caughtBySanitizer || clauseRes.suspiciousDisagreement || !llmFooled;
+        if (!tfidfFlagged && !caughtBySanitizer) {
+          results[mode].asrBuckets.prefilterMissed++; // Bucket (c)
+        } else if (caughtBySanitizer || clauseRes.suspiciousDisagreement) {
+          results[mode].asrBuckets.caughtByConsistency++; // Bucket (a)
+        } else if (llmFooled) {
+          results[mode].asrBuckets.consistencyMissed++; // Bucket (b)
+        }
       } else {
         // LLM only: no TF-IDF, no consistency check. 
-        caught = !llmFooled;
+        if (llmFooled) {
+          results[mode].asrBuckets.consistencyMissed++;
+        } else {
+          results[mode].asrBuckets.caughtByConsistency++;
+        }
       }
-
-      if (!caught) successfulAttacks++;
     }
-    results[mode].asr = (successfulAttacks / adversarialCases.length) * 100;
 
     // --- Benign (FPR) ---
     console.log(`Testing Benign (${benignCases.length} items)...`);
@@ -150,12 +151,19 @@ async function run() {
 
   // 3. Print Markdown Table
   console.log('\n\n=== EXPERIMENTAL RESULTS ===\n');
-  console.log('| Pipeline Mode | Total LLM Calls | Latency (ms) | Est. Cost ($) | Accuracy/Recall (%) | Attack Success Rate (%) | False Positive Rate (%) |');
-  console.log('|---------------|-----------------|--------------|---------------|---------------------|-------------------------|-------------------------|');
+  console.log('| Pipeline Mode | Total LLM Calls | Latency (ms) | Est. Cost ($) | Accuracy/Recall (%) | ASR: Caught by Check (a) | ASR: Consistency Miss (b) | ASR: Pre-filter Miss (c) | False Positive Rate (%) |');
+  console.log('|---------------|-----------------|--------------|---------------|---------------------|--------------------------|---------------------------|--------------------------|-------------------------|');
   
   for (const mode of ['hybrid', 'llm-only']) {
     const r = results[mode];
-    console.log(`| ${mode.padEnd(13)} | ${r.llmCalls.toString().padEnd(15)} | ${r.time.toString().padEnd(12)} | $${r.cost.toFixed(4).padEnd(12)} | ${r.recall.toFixed(1).padEnd(19)} | ${r.asr.toFixed(1).padEnd(23)} | ${r.fpr.toFixed(1).padEnd(23)} |`);
+    const a = r.asrBuckets.caughtByConsistency;
+    const b = r.asrBuckets.consistencyMissed;
+    const c = r.asrBuckets.prefilterMissed;
+    const aPct = ((a / adversarialCases.length) * 100).toFixed(1);
+    const bPct = ((b / adversarialCases.length) * 100).toFixed(1);
+    const cPct = ((c / adversarialCases.length) * 100).toFixed(1);
+    
+    console.log(`| ${mode.padEnd(13)} | ${r.llmCalls.toString().padEnd(15)} | ${r.time.toString().padEnd(12)} | $${r.cost.toFixed(4).padEnd(12)} | ${r.recall.toFixed(1).padEnd(19)} | ${aPct.padEnd(24)} | ${bPct.padEnd(25)} | ${cPct.padEnd(24)} | ${r.fpr.toFixed(1).padEnd(23)} |`);
   }
 }
 
