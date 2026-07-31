@@ -77,7 +77,12 @@ router.post('/', upload.single('file'), async (req, res, next) => {
     const signatureCheck = detectSignature(rawText);
 
     // Step 2: Split into clauses
-    const clauses = splitClauses(rawText);
+    let clauses = splitClauses(rawText);
+
+    // Cap total clauses to 60 to ensure fast analysis times
+    if (clauses.length > 60) {
+      clauses = clauses.slice(0, 60);
+    }
 
     // Step 3: Key Date extraction (always runs)
     const keyDates = extractKeyDates(clauses);
@@ -101,10 +106,34 @@ router.post('/', upload.single('file'), async (req, res, next) => {
       flaggedItems = allResults;
     }
 
+    const isStream = req.headers.accept === 'application/x-ndjson';
+    if (isStream) {
+      res.setHeader('Content-Type', 'application/x-ndjson');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      
+      // Send initial state immediately
+      res.write(JSON.stringify({
+        type: 'init',
+        mode,
+        totalClauses: clauses.length,
+        flaggedCount: flaggedItems.length,
+        sanitization,
+        signatureCheck,
+        keyDates,
+        allResults // initial states without LLM logic yet
+      }) + '\n');
+    }
+
     // Step 4: LLM reasoning for flagged clauses (with concurrency limit)
     let enrichedFlagged = [];
     if (flaggedItems.length > 0) {
-      enrichedFlagged = await reasonAndDraft(flaggedItems, mode);
+      enrichedFlagged = await reasonAndDraft(flaggedItems, mode, (item) => {
+        if (isStream) {
+          // Send individual clause updates as they finish
+          res.write(JSON.stringify({ type: 'clause_done', item }) + '\n');
+        }
+      });
     }
 
     // Apply Consistency Check (Hybrid mode only)
@@ -112,11 +141,17 @@ router.post('/', upload.single('file'), async (req, res, next) => {
       enrichedFlagged = enrichedFlagged.map(item => {
         if (!item.llmSuccess) return item;
         const consistency = checkConsistency(item.score, item.matchedPattern?.riskLevel, item.llmRiskLevel);
-        return {
+        const finalItem = {
           ...item,
           suspiciousDisagreement: consistency.isSuspicious,
           disagreementReason: consistency.reason
         };
+        // if consistency check overrides it, we should ideally stream a patch,
+        // but since we do this after the fact, we just send a 'clause_patched' event
+        if (isStream && consistency.isSuspicious) {
+          res.write(JSON.stringify({ type: 'clause_patched', item: finalItem }) + '\n');
+        }
+        return finalItem;
       });
     }
 
@@ -126,19 +161,23 @@ router.post('/', upload.single('file'), async (req, res, next) => {
 
     const processingTime = Date.now() - startTime;
 
-    res.json({
-      success: true,
-      mode,
-      totalClauses: clauses.length,
-      flaggedCount: flaggedItems.length,
-      sanitization,
-      allResults: finalResults,
-      flaggedResults: enrichedFlagged,
-      signatureCheck,
-      keyDates,
-      processingTime,
-
-    });
+    if (isStream) {
+      res.write(JSON.stringify({ type: 'done', processingTime, finalResults, flaggedResults: enrichedFlagged }) + '\n');
+      res.end();
+    } else {
+      res.json({
+        success: true,
+        mode,
+        totalClauses: clauses.length,
+        flaggedCount: flaggedItems.length,
+        sanitization,
+        allResults: finalResults,
+        flaggedResults: enrichedFlagged,
+        signatureCheck,
+        keyDates,
+        processingTime,
+      });
+    }
   } catch (err) {
     // Pass typed errors to the global error handler
     if (err.name === 'IngestionError' || err.name === 'UnsupportedFileTypeError' || err.name === 'EmptyDocumentError') {

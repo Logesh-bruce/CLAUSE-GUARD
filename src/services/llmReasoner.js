@@ -52,59 +52,62 @@ async function withRetry(fn, attempts = 3) {
 }
 
 /**
- * Process a single flagged clause through Groq.
- * @param {object} item - { clause, matchedPattern, score, riskLevel }
+ * Process a batch of flagged clauses through Groq.
+ * @param {Array<object>} items - array of { clause, matchedPattern, score, riskLevel }
  * @param {string} mode - 'hybrid' or 'llm-only'
- * @returns {Promise<{explanation: string, suggestedReplacement: string, negotiationPoint: string, llmRiskLevel: string}>}
+ * @returns {Promise<Array<object>>}
  */
-async function reasonSingleClause(item, mode = 'hybrid') {
+async function reasonBatchedClauses(items, mode = 'hybrid') {
   const groq = getGroqClient();
-  const { clause, matchedPattern, score } = item;
 
-  let contextBlock = '';
-  if (mode === 'hybrid' && matchedPattern) {
-    contextBlock = `
-MATCHED RISK PATTERN:
-- Category: ${matchedPattern.category}
-- TF-IDF Risk Level: ${matchedPattern.riskLevel.toUpperCase()}
-- Pattern Description: ${matchedPattern.description}
-- Similarity Score: ${(score * 100).toFixed(1)}%`;
-  }
+  const clausesBlock = items.map((item) => {
+    let contextBlock = '';
+    if (mode === 'hybrid' && item.matchedPattern) {
+      contextBlock = `MATCHED RISK PATTERN:
+- Category: ${item.matchedPattern.category}
+- TF-IDF Risk Level: ${item.matchedPattern.riskLevel.toUpperCase()}
+- Pattern Description: ${item.matchedPattern.description}
+- Similarity Score: ${(item.score * 100).toFixed(1)}%`;
+    }
+    return `CLAUSE_ID: ${item.clause.id}
+"${item.clause.text}"
+${contextBlock}`;
+  }).join('\n\n---\n\n');
 
-  const prompt = `You are ClauseGuard, an AI legal risk analyst for financial agents. Analyze the following contract clause.
+  const prompt = `You are ClauseGuard, an AI legal risk analyst for financial agents. Analyze the following contract clauses.
 
-CONTRACT CLAUSE:
-"${clause.text}"
-${contextBlock}
+${clausesBlock}
 
-Respond in valid JSON with exactly these four fields:
+Respond in valid JSON format. Return a JSON array of objects, one for each clause analyzed. Ensure the objects are in the exact same order as the clauses provided.
+Each object MUST have exactly these five fields:
 {
+  "id": "The CLAUSE_ID of the clause being analyzed",
   "riskLevel": "Classify the risk of this clause to the signing party. MUST be one of: safe, low, medium, high, critical",
   "explanation": "2-3 sentences explaining in plain English why this clause is risky (if it is) and what specific harm it could cause to the party signing it. If safe, explain why.",
   "suggestedReplacement": "A rewritten version of this clause that protects the signing party's interests. If safe, return null.",
   "negotiationPoint": "One sentence summarizing the key change to request. If safe, return null."
 }
 
-Return ONLY the JSON object. No markdown, no preamble.`;
+Return ONLY the JSON array. No markdown, no preamble.`;
 
   return await withRetry(async () => {
     const response = await groq.chat.completions.create({
       model: 'llama-3.1-8b-instant',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.3,
-      max_tokens: 600,
+      max_tokens: 3000,
     });
 
     const content = response.choices[0]?.message?.content?.trim();
     if (!content) throw new Error('Empty response from Groq');
 
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error(`Could not extract JSON from response: ${content.substring(0, 100)}`);
+    const jsonMatch = content.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) throw new Error(`Could not extract JSON array from response: ${content.substring(0, 100)}`);
 
     const parsed = JSON.parse(jsonMatch[0]);
 
-    if (!parsed.riskLevel || !parsed.explanation) {
-      throw new Error('Groq response missing required fields');
+    if (!Array.isArray(parsed) || parsed.length !== items.length) {
+      throw new Error(`Groq response array length (${Array.isArray(parsed) ? parsed.length : 0}) does not match input length (${items.length})`);
     }
 
     return parsed;
@@ -112,48 +115,69 @@ Return ONLY the JSON object. No markdown, no preamble.`;
 }
 
 /**
- * Process all flagged clauses with concurrency limiting.
+ * Process all flagged clauses with concurrency limiting and batching.
  * @param {Array<object>} flaggedItems
  * @param {string} mode - 'hybrid' or 'llm-only'
+ * @param {Function} [onProgress] - Callback invoked when a clause finishes
  * @returns {Promise<Array<object>>}
  */
-async function reasonAndDraft(flaggedItems, mode = 'hybrid') {
+async function reasonAndDraft(flaggedItems, mode = 'hybrid', onProgress = null) {
   if (!flaggedItems || flaggedItems.length === 0) return [];
 
-  // 'limit' is the module-level p-limit instance (max 5 concurrent)
+  const BATCH_SIZE = 6;
+  const batches = [];
+  for (let i = 0; i < flaggedItems.length; i += BATCH_SIZE) {
+    batches.push(flaggedItems.slice(i, i + BATCH_SIZE));
+  }
 
-  const tasks = flaggedItems.map(item =>
+  const tasks = batches.map(batch =>
     limit(async () => {
+      const startTime = Date.now();
+      let results = [];
       try {
-        const reasoning = await reasonSingleClause(item, mode);
-        return {
-          ...item,
-          explanation: reasoning.explanation,
-          suggestedReplacement: reasoning.suggestedReplacement,
-          negotiationPoint: reasoning.negotiationPoint,
-          llmRiskLevel: reasoning.riskLevel.toLowerCase(),
-          llmSuccess: true,
-        };
+        const reasoningArray = await reasonBatchedClauses(batch, mode);
+        
+        results = batch.map((item, i) => {
+          const reasoning = reasoningArray.find(r => String(r.id) === String(item.clause.id)) || reasoningArray[i];
+          const res = {
+            ...item,
+            explanation: reasoning.explanation,
+            suggestedReplacement: reasoning.suggestedReplacement,
+            negotiationPoint: reasoning.negotiationPoint,
+            llmRiskLevel: (reasoning.riskLevel || 'unknown').toLowerCase(),
+            llmSuccess: true,
+            llmLatency: Date.now() - startTime,
+          };
+          if (onProgress) onProgress(res);
+          return res;
+        });
       } catch (err) {
-        console.error(`[LLM] Failed for clause ${item.clause.id}:`, err.message);
-        return {
-          ...item,
-          explanation: `Risk detected: AI explanation unavailable due to API error.`,
-          suggestedReplacement: null,
-          negotiationPoint: null,
-          llmRiskLevel: 'unknown',
-          llmSuccess: false,
-          llmError: err.message,
-        };
+        console.error(\`[LLM] Failed for batch of size \${batch.length}:\`, err.message);
+        results = batch.map(item => {
+          const res = {
+            ...item,
+            explanation: \`Risk detected: AI explanation unavailable due to API error.\`,
+            suggestedReplacement: null,
+            negotiationPoint: null,
+            llmRiskLevel: 'unknown',
+            llmSuccess: false,
+            llmError: err.message,
+            llmLatency: Date.now() - startTime,
+          };
+          if (onProgress) onProgress(res);
+          return res;
+        });
       }
+      return results;
     })
   );
 
-  const results = await Promise.all(tasks);
-  const successCount = results.filter(r => r.llmSuccess).length;
-  console.log(`[LLM] Processed ${flaggedItems.length} clauses: ${successCount} succeeded, ${flaggedItems.length - successCount} failed`);
+  const batchedResults = await Promise.all(tasks);
+  const flatResults = batchedResults.flat();
+  const successCount = flatResults.filter(r => r.llmSuccess).length;
+  console.log(\`[LLM] Processed \${flaggedItems.length} clauses: \${successCount} succeeded, \${flaggedItems.length - successCount} failed\`);
 
-  return results;
+  return flatResults;
 }
 
 module.exports = { reasonAndDraft };
