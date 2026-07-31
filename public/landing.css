@@ -404,3 +404,76 @@ a {
   font-size: 0.75rem;
   color: var(--text-primary);
 }
+
+/* How It Works Component */
+.how-it-works {
+  border-top: 1px solid var(--line);
+}
+.hiw-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px;
+  position: relative;
+}
+/* Connecting dashed line */
+.hiw-grid::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 32px;
+  right: calc(33.333% + 32px);
+  height: 1px;
+  border-top: 1px dashed var(--line);
+  z-index: 0;
+}
+@media (max-width: 768px) {
+  .hiw-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+  .hiw-grid::before {
+    display: none;
+  }
+}
+.hiw-step {
+  position: relative;
+  z-index: 1;
+}
+.hiw-number {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  background-color: var(--bg);
+  display: inline-block;
+  padding-right: 16px;
+  margin-bottom: 24px;
+}
+.hiw-title {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.hiw-desc {
+  font-size: 1rem;
+  color: var(--text-muted);
+  max-width: 90%;
+}
+@media (max-width: 768px) {
+  .hiw-desc {
+    max-width: 100%;
+  }
+  .hiw-step {
+    border-left: 1px dashed var(--line);
+    padding-left: 24px;
+    margin-left: 12px;
+  }
+  .hiw-number {
+    position: absolute;
+    left: -12px;
+    top: 0;
+    padding-right: 0;
+    background-color: var(--bg);
+    width: 24px;
+    text-align: center;
+  }
+}
