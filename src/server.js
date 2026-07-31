@@ -17,8 +17,13 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/api/analyze', analyzeRouter);
 app.use('/api/export', exportRouter);
 
-// Serve frontend
+// Serve landing page
 app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/landing.html'));
+});
+
+// Serve app
+app.get('/app', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
