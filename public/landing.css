@@ -515,6 +515,7 @@ a {
 @media (max-width: 768px) {
   .tag-card {
     width: 100%;
+    min-width: auto;
   }
 }
 .tag-pill {
