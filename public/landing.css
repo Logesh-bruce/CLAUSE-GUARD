@@ -191,3 +191,112 @@ a {
     display: none;
   }
 }
+
+/* Hero Component */
+.hero {
+  margin-top: 60px; /* Offset for fixed navbar */
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+@media (max-width: 992px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+}
+@media (max-width: 768px) {
+  .hero-grid {
+    display: flex;
+    flex-direction: column-reverse; /* Redline visual first on mobile */
+  }
+}
+
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  font-size: 0.8125rem;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+.hero-title {
+  font-size: 4.5rem;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.75rem;
+  }
+}
+.hero-title span {
+  display: block;
+  opacity: 0;
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.hero-title span:nth-child(1) { animation-delay: 0ms; }
+.hero-title span:nth-child(2) { animation-delay: 80ms; }
+.hero-title span:nth-child(3) { animation-delay: 160ms; }
+
+.hero-highlight {
+  color: var(--risk-high);
+  font-style: italic;
+}
+
+@keyframes fadeUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-title span {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.hero-subtitle {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin-bottom: 40px;
+  max-width: 60ch;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 480px) {
+  .hero-actions {
+    flex-direction: column;
+  }
+}
+.btn-primary {
+  background-color: var(--accent);
+  color: #FFF;
+}
+.btn-primary:hover {
+  background-color: #7B68FF;
+}
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--line);
+}
+.btn-ghost:hover {
+  background-color: var(--surface-raised);
+}
+
+.hero-trust {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
