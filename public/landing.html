@@ -57,8 +57,39 @@
         <div class="hero-trust">Hybrid TF-IDF + Llama 3.3 70B defense</div>
       </div>
       
-      <!-- Component 3: Redline Animation Panel placeholder -->
+      <!-- Component 3: Redline Animation Panel -->
       <div class="hero-visual" id="redline-container">
+        <div class="redline-panel">
+          <div class="redline-header">
+            <div class="redline-file">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <span>Service_Agreement.pdf</span>
+            </div>
+            <div class="redline-status font-mono" id="redline-status">Analyzing...</div>
+          </div>
+          <div class="redline-body">
+            <div class="doc-line">1.1 The Provider shall deliver the services outlined in Exhibit A.</div>
+            <div class="doc-line doc-line-risky" id="risky-line-1">
+              1.2 Provider may <span class="risky-phrase">terminate this agreement at any time</span> without notice.
+              <div class="redline-annotation">
+                <span class="badge badge-high">HIGH</span>
+                <span class="annotation-text">No cure period</span>
+              </div>
+            </div>
+            <div class="doc-line">1.3 Payment is due within 30 days of invoice receipt.</div>
+            <div class="doc-line doc-line-risky" id="risky-line-2">
+              1.4 Client's total liability <span class="risky-phrase">shall not exceed $100</span>.
+              <div class="redline-annotation">
+                <span class="badge badge-medium">MEDIUM</span>
+                <span class="annotation-text">Uncapped risk</span>
+              </div>
+            </div>
+            <div class="doc-line">1.5 Both parties will maintain confidentiality of proprietary data.</div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -73,6 +104,59 @@
         nav.classList.remove('scrolled');
       }
     });
+
+    // Redline Animation Loop
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    if (!prefersReducedMotion) {
+      const redlineStatus = document.getElementById('redline-status');
+      const riskyLine1 = document.getElementById('risky-line-1');
+      const riskyLine2 = document.getElementById('risky-line-2');
+      
+      const phrase1 = riskyLine1.querySelector('.risky-phrase');
+      const anno1 = riskyLine1.querySelector('.redline-annotation');
+      
+      const phrase2 = riskyLine2.querySelector('.risky-phrase');
+      const anno2 = riskyLine2.querySelector('.redline-annotation');
+      
+      async function runAnimationLoop() {
+        while (true) {
+          // Reset
+          redlineStatus.textContent = 'Analyzing...';
+          phrase1.classList.remove('struck');
+          anno1.classList.remove('visible');
+          phrase2.classList.remove('struck');
+          anno2.classList.remove('visible');
+          
+          await new Promise(r => setTimeout(r, 1000));
+          
+          // Step 1: Strike line 1
+          phrase1.classList.add('struck');
+          await new Promise(r => setTimeout(r, 400));
+          anno1.classList.add('visible');
+          
+          await new Promise(r => setTimeout(r, 1500));
+          
+          // Step 2: Strike line 2
+          phrase2.classList.add('struck');
+          await new Promise(r => setTimeout(r, 400));
+          anno2.classList.add('visible');
+          
+          await new Promise(r => setTimeout(r, 500));
+          redlineStatus.textContent = '2 flagged';
+          
+          // Wait before reset
+          await new Promise(r => setTimeout(r, 3500));
+        }
+      }
+      
+      runAnimationLoop();
+    } else {
+      // Reduced motion fallback: show final settled state
+      document.getElementById('redline-status').textContent = '2 flagged';
+      document.querySelectorAll('.risky-phrase').forEach(el => el.classList.add('struck'));
+      document.querySelectorAll('.redline-annotation').forEach(el => el.classList.add('visible'));
+    }
   </script>
 </body>
 </html>
