@@ -5,116 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ClauseGuard — AI Contract Defense</title>
   <meta name="description" content="ClauseGuard: Stop Signing Dangerous Contracts. AI-powered contract risk detection." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="landing.css" />
 </head>
 <body>
-  <!-- Animated Background Elements -->
-  <div class="web3-bg">
-    <div class="glow-orb orb-1"></div>
-    <div class="glow-orb orb-2"></div>
-    <div class="glow-orb orb-3"></div>
-    <div class="mesh-grid"></div>
-  </div>
 
-  <!-- Navigation -->
-  <nav class="nav">
-    <div class="nav-inner">
-      <div class="logo">
-        <div class="logo-icon">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <path d="M14 2L4 6.5V13C4 18.55 8.34 23.74 14 25C19.66 23.74 24 18.55 24 13V6.5L14 2Z" fill="url(#shield-grad)"/>
-            <path d="M10 13.5L12.5 16L18 10.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <defs>
-              <linearGradient id="shield-grad" x1="4" y1="2" x2="24" y2="25" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#00F0FF"/>
-                <stop offset="1" stop-color="#7000FF"/>
-              </linearGradient>
-            </defs>
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <div class="nav-left">
+        <div class="logo">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           </svg>
+          <span class="logo-text">ClauseGuard</span>
         </div>
-        <span class="logo-text">Clause<span class="logo-accent">Guard</span></span>
+        <div class="nav-status">
+          <div class="pulse-dot"></div>
+          <span class="status-text">AI GOVERNANCE LAYER</span>
+        </div>
       </div>
       
-      <div class="nav-links">
-        <a href="#features" class="nav-link">Features</a>
+      <div class="nav-center">
         <a href="#how-it-works" class="nav-link">How It Works</a>
+        <a href="#what-it-watches" class="nav-link">Features</a>
         <a href="#security" class="nav-link">Security</a>
       </div>
       
-      <div class="nav-cta">
-        <a href="/app" class="btn btn-primary btn-glow">Launch App</a>
+      <div class="nav-right">
+        <a href="/app" class="btn btn-nav">Launch App</a>
       </div>
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <main class="hero">
-    <div class="hero-content">
-      <h1 class="hero-title">
-        Stop Signing <br />
-        <span class="text-gradient">Dangerous Contracts</span>
-      </h1>
-      <p class="hero-subtitle">
-        Enterprise-grade AI that instantly detects toxic clauses, explains the hidden risks, and drafts safe counter-terms in seconds.
-      </p>
-      
-      <div class="hero-buttons">
-        <a href="/app" class="btn btn-primary btn-large btn-glow">Upload Contract</a>
-        <a href="/app" class="btn btn-outline btn-large">Paste & Analyze</a>
-      </div>
-    </div>
-    
-    <div class="hero-preview">
-      <!-- Glassmorphism mock card -->
-      <div class="mock-card">
-        <div class="mock-card-header">
-          <span class="mock-num">#04</span>
-          <div class="mock-meta">
-            <span class="mock-badge badge-critical">CRITICAL</span>
-            <span class="mock-latency">⚡ 120ms</span>
-          </div>
-        </div>
-        <div class="mock-clause">
-          "Provider may terminate this agreement at any time, for any reason, without prior notice."
-        </div>
-        <div class="mock-explanation">
-          <div class="mock-explanation-icon">🤖</div>
-          <div class="mock-explanation-text">
-            <strong>Risk Detected:</strong> Allows unilateral termination without a cure period. This leaves your business highly vulnerable to sudden service disruption without recourse.
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <!-- Features Section -->
-  <section class="features" id="features">
-    <div class="features-inner">
-      <div class="feature-card">
-        <div class="feature-icon">⚡</div>
-        <h3 class="feature-title">Instant Risk Detection</h3>
-        <p class="feature-desc">Our proprietary TF-IDF engine flags dangerous legal patterns in milliseconds before invoking deep LLM reasoning.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🧠</div>
-        <h3 class="feature-title">Plain-English Explanations</h3>
-        <p class="feature-desc">No more legalese. Understand exactly how a clause hurts you and what the financial or operational impacts are.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">✉️</div>
-        <h3 class="feature-title">Negotiation Drafting</h3>
-        <p class="feature-desc">ClauseGuard automatically generates protective counter-terms and formats them into a ready-to-send negotiation email.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🛡️</div>
-        <h3 class="feature-title">Hybrid AI Defense</h3>
-        <p class="feature-desc">We combine deterministic pattern matching with advanced LLM reasoning to achieve near-zero false positive rates.</p>
-      </div>
-    </div>
-  </section>
-
+  <script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+      const nav = document.getElementById('navbar');
+      if (window.scrollY > 40) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    });
+  </script>
 </body>
 </html>
