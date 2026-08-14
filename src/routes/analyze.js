@@ -30,6 +30,8 @@ const { sanitize } = require('../services/sanitizer');
 const { checkConsistency } = require('../services/consistencyChecker');
 const { IngestionError, UnsupportedFileTypeError, EmptyDocumentError } = require('../utils/errors');
 
+const MAX_TEXT_LENGTH = 500000; // ~500k chars for pasted text
+
 // Memory storage — no disk writes for uploaded files
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -60,6 +62,12 @@ router.post('/', upload.single('file'), async (req, res, next) => {
       rawText = await parseFile(req.file.buffer, req.file.mimetype, req.file.originalname);
     } else if (req.body.text && typeof req.body.text === 'string' && req.body.text.trim()) {
       // Plain text paste path
+      if (req.body.text.length > MAX_TEXT_LENGTH) {
+        return res.status(413).json({
+          error: true,
+          message: `Pasted text exceeds the ${Math.round(MAX_TEXT_LENGTH / 1000)}k character limit. Please upload a file (.pdf, .docx, .txt) instead.`,
+        });
+      }
       rawText = parseText(req.body.text);
     } else {
       return res.status(400).json({
