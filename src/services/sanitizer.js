@@ -10,7 +10,7 @@
  * so we rely on text-based heuristics.
  */
 
-const ZERO_WIDTH_RE = /[\u200B-\u200D\uFEFF]/g;
+const ZERO_WIDTH_RE = /[\u200B-\u200D\uFEFF]/;
 const INJECTION_PHRASES = [
   /ignore\s+previous\s+instructions/i,
   /disregard\s+(?:the\s+)?above/i,
