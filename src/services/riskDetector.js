@@ -59,17 +59,6 @@ function buildCorpus() {
  * @returns {number} similarity in [0, 1]
  */
 function cosineSimilarity(tfidf, query, docIndex) {
-  // Use natural's built-in tfidfs to get term scores for the query against a doc
-  const queryTerms = {};
-  const docTerms = {};
-
-  // Score query terms against each document
-  tfidf.tfidfs(query, (i, measure) => {
-    if (i === docIndex) {
-      // This gives the sum of tfidf scores — we capture top-N terms for query vector
-    }
-  });
-
   // Manual cosine: get tfidf vectors
   const tokenizer = new natural.WordTokenizer();
   const queryTokens = tokenizer.tokenize(query.toLowerCase());
