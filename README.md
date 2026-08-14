@@ -66,6 +66,22 @@ We ran a benchmark comparing a pure **LLM-Only Pipeline** against our **Hybrid P
 4. **Access the Application:**
    Open `http://localhost:3000` in your browser. Drag and drop a contract, and review the flagged clauses!
 
+### Running the Tests
+The test suite uses Node's built-in test runner (no extra dependencies):
+```bash
+npm test
+```
+
+### API Reference
+- `GET /api/health` — Liveness check. Returns `{ status, uptime, timestamp, llmConfigured }`. Use it for uptime monitoring or load balancer probes.
+- `POST /api/analyze` — Accepts a file (`multipart/form-data`, field `file`) or pasted text (`application/json`, field `text`). Optional `?mode=llm-only` disables the deterministic pre-filter.
+- `POST /api/export` — Generates a negotiation email from accepted clause revisions.
+
+### Troubleshooting
+- **LLM explanations are missing:** The server starts without a `GROQ_API_KEY` but reasoning will gracefully degrade (deterministic checks still run). Set `GROQ_API_KEY` in `.env` and restart.
+- **413 from `/api/analyze`:** Pasted text is capped at 500k characters — upload the contract as a file instead.
+- **Port already in use:** Set a different `PORT` in `.env`.
+
 ### Running the Benchmark
 To reproduce the adversarial robustness experiments:
 ```bash
