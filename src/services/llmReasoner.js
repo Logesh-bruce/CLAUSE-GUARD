@@ -152,11 +152,11 @@ async function reasonAndDraft(flaggedItems, mode = 'hybrid', onProgress = null) 
           return res;
         });
       } catch (err) {
-        console.error(\`[LLM] Failed for batch of size \${batch.length}:\`, err.message);
+        console.error(`[LLM] Failed for batch of size ${batch.length}:`, err.message);
         results = batch.map(item => {
           const res = {
             ...item,
-            explanation: \`Risk detected: AI explanation unavailable due to API error.\`,
+            explanation: `Risk detected: AI explanation unavailable due to API error.`,
             suggestedReplacement: null,
             negotiationPoint: null,
             llmRiskLevel: 'unknown',
@@ -175,7 +175,7 @@ async function reasonAndDraft(flaggedItems, mode = 'hybrid', onProgress = null) 
   const batchedResults = await Promise.all(tasks);
   const flatResults = batchedResults.flat();
   const successCount = flatResults.filter(r => r.llmSuccess).length;
-  console.log(\`[LLM] Processed \${flaggedItems.length} clauses: \${successCount} succeeded, \${flaggedItems.length - successCount} failed\`);
+  console.log(`[LLM] Processed ${flaggedItems.length} clauses: ${successCount} succeeded, ${flaggedItems.length - successCount} failed`);
 
   return flatResults;
 }
