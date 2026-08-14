@@ -40,6 +40,28 @@ router.post('/', (req, res) => {
     });
   }
 
+  if (contractName != null && typeof contractName !== 'string') {
+    return res.status(400).json({
+      error: true,
+      message: 'contractName must be a string if provided.',
+    });
+  }
+
+  const hasMalformedRevision = acceptedRevisions.some(r =>
+    !r ||
+    typeof r.originalText !== 'string' ||
+    typeof r.category !== 'string' ||
+    typeof r.riskLevel !== 'string' ||
+    (r.suggestedReplacement != null && typeof r.suggestedReplacement !== 'string') ||
+    (r.negotiationPoint != null && typeof r.negotiationPoint !== 'string')
+  );
+  if (hasMalformedRevision) {
+    return res.status(400).json({
+      error: true,
+      message: 'Each accepted revision must include originalText, category, and riskLevel as strings.',
+    });
+  }
+
   const name = contractName || 'the Agreement';
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
