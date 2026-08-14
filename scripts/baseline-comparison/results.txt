@@ -1,20 +1,55 @@
-[Patterns] Loaded 41 patterns from 5 file(s) (35 risk, 6 date)
 Starting experiments...
 
 === Running Mode: hybrid ===
-Testing Corpus (35 items)...
-Testing Adversarial (30 items)...
+Testing Unseen Corpus (15 items)...
+Testing Adversarial (15 items)...
 Testing Benign (10 items)...
 
 === Running Mode: llm-only ===
-Testing Corpus (35 items)...
-Testing Adversarial (30 items)...
+Testing Unseen Corpus (15 items)...
+Testing Adversarial (15 items)...
 Testing Benign (10 items)...
+
+
+=== BENIGN FALSE POSITIVE EXAMPLES ===
+
+--- HYBRID ---
+[Example 1]
+Clause: Provider will deliver consulting services as described in Exhibit A.
+LLM Risk: medium
+Explanation: This clause may be risky because it allows the Provider to terminate the consulting services without notice or severance, which could leave the signing party without access to critical services or expertise. This could cause significant disruption to the signing party's operations and potentially result in financial losses. The lack of notice period also limits the signing party's ability to prepare for the termination.
+
+[Example 2]
+Clause: Both parties agree to protect the other's confidential information.
+LLM Risk: medium
+Explanation: This clause is overly broad, potentially restricting the signing party's ability to disclose publicly available information, which could harm their business or reputation. It may also create uncertainty about what information is considered confidential. This could lead to disputes or costly litigation.
+
+[Example 3]
+Clause: Neither party may assign this agreement without prior written consent.
+LLM Risk: medium
+Explanation: This clause gives the other party (likely the landlord) complete discretion to approve or deny assignment, which could lead to unfair or arbitrary decisions that harm the signing party. Without prior written consent, the signing party may be unable to assign the agreement even if it's necessary for business or financial reasons. This could result in lost opportunities or financial losses.
+
+--- LLM-ONLY ---
+[Example 1]
+Clause: Provider will deliver consulting services as described in Exhibit A.
+LLM Risk: medium
+Explanation: This clause is risky because it delegates the description of the consulting services to an external document (Exhibit A), which may not be readily available or easily accessible. This could lead to disputes or misunderstandings about the scope of services provided. If Exhibit A is not clear or is incomplete, the signing party may be left without a clear understanding of what they are paying for.
+
+[Example 2]
+Clause: Client shall pay the undisputed amounts within 30 days of invoice.
+LLM Risk: medium
+Explanation: This clause may be risky for the signing party because it does not provide a clear process for disputing the amount owed. If the client disputes the amount, they may be required to pay it within 30 days, even if they are contesting the charge. This could result in the signing party being forced to pay an amount they believe is incorrect.
+
+[Example 3]
+Clause: Both parties agree to protect the other's confidential information.
+LLM Risk: medium
+Explanation: This clause is risky because it only requires protection of confidential information, but it does not specify what constitutes confidential information or how it will be protected. This could lead to disputes and potential breaches of confidentiality. The signing party may not have a clear understanding of what they are obligated to protect.
+
 
 
 === EXPERIMENTAL RESULTS ===
 
-| Pipeline Mode | Total LLM Calls | Latency (ms) | Est. Cost ($) | Accuracy/Recall (%) | Attack Success Rate (%) | False Positive Rate (%) |
-|---------------|-----------------|--------------|---------------|---------------------|-------------------------|-------------------------|
-| hybrid        | 76              | 290725       | $0.0076       | 100.0               | 23.3                    | 30.0                    |
-| llm-only      | 98              | 387246       | $0.0098       | 100.0               | 10.0                    | 70.0                    |
+| Pipeline Mode | Total LLM Calls | Latency (ms) | Est. Cost ($) | Accuracy/Recall (%) | ASR: Caught by Check (a) | ASR: Consistency Miss (b) | ASR: Pre-filter Miss (c) | False Positive Rate (%) |
+|---------------|-----------------|--------------|---------------|---------------------|--------------------------|---------------------------|--------------------------|-------------------------|
+| hybrid        | 33              | 120767       | $0.0033       | 93.3                | 33.3                     | 0.0                       | 13.3                     | 30.0                    |
+| llm-only      | 48              | 187074       | $0.0048       | 100.0               | 86.7                     | 13.3                      | 0.0                      | 70.0                    |
