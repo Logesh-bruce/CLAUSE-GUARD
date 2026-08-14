@@ -17,6 +17,16 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/api/analyze', analyzeRouter);
 app.use('/api/export', exportRouter);
 
+// Health check — for uptime monitoring and load balancer probes
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    llmConfigured: Boolean(process.env.GROQ_API_KEY),
+  });
+});
+
 // Serve landing page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/landing.html'));
