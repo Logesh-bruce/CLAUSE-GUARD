@@ -17,6 +17,8 @@ const { loadRiskPatterns } = require('../patterns');
 const RISK_THRESHOLD = 0.12; // Minimum cosine similarity to flag a clause
 const RISK_LEVEL_ORDER = { low: 1, medium: 2, high: 3, critical: 4 };
 
+const tokenizer = new natural.WordTokenizer();
+
 let _tfidf = null;
 let _patternDocs = null; // Parallel array: index maps to pattern
 
@@ -60,7 +62,6 @@ function buildCorpus() {
  */
 function cosineSimilarity(tfidf, query, docIndex) {
   // Manual cosine: get tfidf vectors
-  const tokenizer = new natural.WordTokenizer();
   const queryTokens = tokenizer.tokenize(query.toLowerCase());
 
   let dotProduct = 0;
